@@ -1,22 +1,17 @@
 package GrafischeRam;
 
 import GrafischeRam.Ram;
-
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -32,6 +27,8 @@ public class Graphic implements ActionListener{
 	private JMenuBar menuBar;
 	private JMenuItem loadProgram;
 	private JPanel registerPanel;		//contains the register fields and their values
+	private JButton newRegister;
+	private int nrRegisters;
 	private JPanel programPanel;		//contains the program
 	private JTextArea programArea;
 	private JPanel progressPanel;		//contains the compute buttons
@@ -61,9 +58,16 @@ public class Graphic implements ActionListener{
 		fileMenu.add(exit);
 		this.menuBar.add(fileMenu);
 		this.frame.setJMenuBar(this.menuBar);
-		//create a text field for every register, put the content of the register into it, put it into the register panel and all together in the main frame
+		//create the panel for the registers
 		this.registerPanel = new JPanel(new FlowLayout());
+		//create a button to add more registers
+		this.newRegister = new JButton("add Register");
+		this.newRegister.setActionCommand("newRegister");
+		this.newRegister.addActionListener(this);
+		this.registerPanel.add(this.newRegister);
+		//create a text field for every register, put the content of the register into it, put it into the register panel and all together in the main frame
 		JTextField[] registersFields = new JTextField[ram.Registers.length];
+		this.nrRegisters = ram.Registers.length;
 		for(int i = 0; i < ram.Registers.length; i++){
 			registersFields[i] = new JTextField(5);
 			registersFields[i].setText(String.valueOf(ram.Registers[i]));
@@ -97,80 +101,79 @@ public class Graphic implements ActionListener{
 		this.frame.add(this.progressPanel, BorderLayout.SOUTH);
 		//show the  finished window
 		this.frame.setVisible(true);
+		this.frame.validate();
 	}
 	
-	void load(String filename){
-		BufferedReader file = null;
-		try{
-			file = new BufferedReader(new FileReader(filename));
-		}
-		catch(FileNotFoundException e){
-			e.printStackTrace();
-		}
-		String newRegisters = "";
-		String newProgram = "";
-		try{
-			newRegisters = file.readLine();
-			while(file.ready()){
-				newProgram = newProgram.concat(file.readLine() + System.getProperty("line.separator"));
-			}
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
-		this.ram.load(newProgram, newRegisters);
-	}
-	
+	//puts the given output into the text field for it
 	void setOutput(String output){
 		this.output.setText(output);
-		frame.repaint();
+		//this.frame.revalidate();
 	}
 	
+	//opens a file chooser, read the content of the file and return the lines in a String array
 	private String[] chooseProgramFile(){
 		this.fc.showOpenDialog(this.loadProgram);
 		File file = fc.getSelectedFile();
 		FileReader fileToRead = null;
 		String textContainer = null;
-		StringBuffer lesePuffer = new StringBuffer();
-		try{
-			fileToRead = new FileReader(file.getPath());
-			BufferedReader in = new BufferedReader(fileToRead);
+		if(file != null){
+			StringBuffer readPuffer = new StringBuffer();
 			try{
-				while((textContainer = in.readLine()) != null){
-					lesePuffer.append(textContainer + System.getProperty("line.separator"));
+				fileToRead = new FileReader(file.getPath());
+				BufferedReader in = new BufferedReader(fileToRead);
+				try{
+					while((textContainer = in.readLine()) != null){
+						readPuffer.append(textContainer + System.getProperty("line.separator"));
+					}
+					textContainer = new String(readPuffer).substring(0, readPuffer.length()-1);
+					in.close();
 				}
-				textContainer = new String(lesePuffer).substring(0, lesePuffer.length()-1);
-				in.close();
+				catch(IOException e1){
+					System.out.println("Read error " + e1);
+				}
 			}
-			catch(IOException e1){
-				System.out.println("Read error " + e1);
+			catch(IOException e2){
+				System.out.println("Open error " + e2);
 			}
+			return textContainer.split(System.getProperty("line.separator"));
 		}
-		catch(IOException e2){
-			System.out.println("Open error " + e2);
-		}
-		return textContainer.split(System.getProperty("line.separator"));
+		return null;
 	}
 	
-	private boolean loadNewProgram(String[] program){
+	//load a new program given (usually by chooseProgramFile), gives it to the Ram and puts the text into the program area
+	private void loadNewProgram(String[] program){
 		//create the new program by concating the lines of the program and ignoring the first line 
 		String newProgram = "";
 		for(int i = 1; i < program.length; i++){
 			newProgram = newProgram.concat(program[i] + System.getProperty("line.separator"));
 		}
 		this.ram.load(newProgram, program[0]);
-		this.programArea.insert(newProgram, 0);
-		return false;
+		System.out.println("newProgram: " + newProgram);
+		this.programArea.setText(newProgram);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		switch(e.getActionCommand()){
 			case "load":
-				loadNewProgram(chooseProgramFile());
+				String[] newProgramLines = chooseProgramFile();
+				if(newProgramLines != null){
+					loadNewProgram(newProgramLines);
+				}
 				break;
 			case "exit":
 				System.exit(0);
+				break;
+			case "newRegister":
+				JTextField newRegisterField = new JTextField(5);
+				newRegisterField.setText("0");
+				this.registerPanel.add(newRegisterField);
+				this.nrRegisters++;
+				if(this.ram.Registers.length < this.nrRegisters){
+					this.ram.addNewRegister();
+				}
+				this.frame.revalidate();
+				break;
 		}
 	}
 }

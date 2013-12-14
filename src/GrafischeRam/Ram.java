@@ -40,6 +40,24 @@ public class Ram{
 		}
 	}
 	
+	void addNewRegister(){
+		int[] newRegister = new int[this.Registers.length + 1];
+		for(int i = 0; i < this.Registers.length; i++){
+			newRegister[i] = this.Registers[i];
+		}
+		newRegister[this.Registers.length] = 0;
+		this.Registers = newRegister;
+	}
+	
+	void addNewRegister(int content){
+		int[] newRegister = new int[this.Registers.length + 1];
+		for(int i = 0; i < this.Registers.length; i++){
+			newRegister[i] = this.Registers[i];
+		}
+		newRegister[this.Registers.length] = content;
+		this.Registers = newRegister;
+	}
+	
 	//splits the lines of the given program to make each line easy accessible and eliminates the newlines
 	private String[] partProgrammLines(String p){
 		return p.split(newLine);
