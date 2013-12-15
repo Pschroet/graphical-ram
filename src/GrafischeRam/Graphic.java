@@ -27,6 +27,7 @@ public class Graphic implements ActionListener{
 	private JMenuBar menuBar;
 	private JMenuItem loadProgram;
 	private JPanel registerPanel;		//contains the register fields and their values
+	private JTextField[] registersFields;
 	private JButton newRegister;
 	private int nrRegisters;
 	private JPanel programPanel;		//contains the program
@@ -65,7 +66,7 @@ public class Graphic implements ActionListener{
 		this.newRegister.addActionListener(this);
 		this.registerPanel.add(this.newRegister);
 		//create a text field for every register, put the content of the register into it, put it into the register panel and all together in the main frame
-		JTextField[] registersFields = new JTextField[ram.Registers.length];
+		registersFields = new JTextField[ram.Registers.length];
 		this.nrRegisters = ram.Registers.length;
 		for(int i = 0; i < ram.Registers.length; i++){
 			registersFields[i] = new JTextField(5);
@@ -87,7 +88,11 @@ public class Graphic implements ActionListener{
 		this.frame.add(this.programPanel, BorderLayout.CENTER);
 		//create two buttons, the first to compute one line, the second to compute all possible...
 		this.computeLine = new JButton("compute line");
+		this.computeLine.addActionListener(this);
+		this.computeLine.setActionCommand("computeLine");
 		this.computeAll = new JButton("compute all");
+		this.computeAll.addActionListener(this);
+		this.computeAll.setActionCommand("computeAll");
 		//and add both to the progressPanel, which is added to the main frame
 		this.progressPanel = new JPanel(new FlowLayout());
 		this.progressPanel.add(this.computeLine);
@@ -147,9 +152,42 @@ public class Graphic implements ActionListener{
 		for(int i = 1; i < program.length; i++){
 			newProgram = newProgram.concat(program[i] + System.getProperty("line.separator"));
 		}
+		//get the registers from the file
+		String[] registers = program[0].split(";");
+		for(int i = 0; i < this.registersFields.length; i++){
+			registersFields[i].setText(registers[i]);
+		}
+		//if the loaded file contains more registers create them
+		if(registers.length > this.nrRegisters){
+			for(int i = this.registersFields.length; i < registers.length; i++){
+				addRegister(registers[i]);
+			}
+		}
+		//pass the program and the registers to the ram
 		this.ram.load(newProgram, program[0]);
-		System.out.println("newProgram:\n" + newProgram);
+		//put the program in the program area
 		this.programArea.setText(newProgram);
+	}
+	
+	//adds a new register with the given content, also updates the registers of the ram
+	private void addRegister(String content){
+		JTextField[] tmp = new JTextField[this.registersFields.length + 1];
+		//put the values from the old registers into the new ones
+		for(int i = 0; i < this.registersFields.length; i++){
+			tmp[i] = this.registersFields[i];
+		}
+		//create a new text field
+		JTextField newRegisterField = new JTextField(5);
+		newRegisterField.setText(content);
+		tmp[this.registersFields.length] = newRegisterField;
+		//link to the new registers
+		this.registersFields = tmp;
+		//add the registers to the frame
+		for(int i = 0; i < this.registersFields.length; i++){
+			this.registerPanel.add(this.registersFields[i]);
+		}
+		this.nrRegisters++;
+		this.frame.revalidate();
 	}
 
 	@Override
@@ -160,19 +198,16 @@ public class Graphic implements ActionListener{
 				if(newProgramLines != null){
 					loadNewProgram(newProgramLines);
 				}
+				this.output.setText("");
 				break;
 			case "exit":
 				System.exit(0);
 				break;
 			case "newRegister":
-				JTextField newRegisterField = new JTextField(5);
-				newRegisterField.setText("0");
-				this.registerPanel.add(newRegisterField);
-				this.nrRegisters++;
-				if(this.ram.Registers.length < this.nrRegisters){
-					this.ram.addNewRegister();
-				}
-				this.frame.revalidate();
+				this.addRegister("0");
+				break;
+			case "computeLine":
+				this.output.setText((this.ram.computeLine()));
 				break;
 		}
 	}
