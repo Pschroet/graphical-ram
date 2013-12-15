@@ -34,7 +34,6 @@ public class Graphic implements ActionListener{
 	private JPanel progressPanel;		//contains the compute buttons
 	private JButton computeLine;
 	private JButton computeAll;
-	//private JPanel outputPanel;			//contains the output
 	private JTextField output;
 	final JFileChooser fc = new JFileChooser();
 	
@@ -80,11 +79,11 @@ public class Graphic implements ActionListener{
 		this.programPanel = new JPanel(new BorderLayout());
 		this.programPanel.add(programArea, BorderLayout.CENTER);
 		//create the labels which show the lines
-		JTextPane textPane = new JTextPane();
-		JScrollPane scrollPane = new JScrollPane(textPane);
-		TextLineNumber tln = new TextLineNumber(textPane);
-		scrollPane.setRowHeaderView( tln );
-		this.programPanel.add(scrollPane);
+		//JTextPane textPane = new JTextPane();
+		//JScrollPane scrollPane = new JScrollPane(textPane);
+		//TextLineNumber tln = new TextLineNumber(textPane);
+		//scrollPane.setRowHeaderView( tln );
+		//this.programPanel.add(scrollPane);
 		this.frame.add(this.programPanel, BorderLayout.CENTER);
 		//create two buttons, the first to compute one line, the second to compute all possible...
 		this.computeLine = new JButton("compute line");
@@ -99,6 +98,7 @@ public class Graphic implements ActionListener{
 		this.progressPanel.add(this.output);
 		//create the panel for the output, put the text field for the output in it and put the panel in the frame
 		this.frame.add(this.progressPanel, BorderLayout.SOUTH);
+		//create a scroll pane so content not fitting in the window will be shown
 		//show the  finished window
 		this.frame.setVisible(true);
 		this.frame.validate();
@@ -123,7 +123,7 @@ public class Graphic implements ActionListener{
 				BufferedReader in = new BufferedReader(fileToRead);
 				try{
 					while((textContainer = in.readLine()) != null){
-						readPuffer.append(textContainer + System.getProperty("line.separator"));
+						readPuffer.append(textContainer + "%");
 					}
 					textContainer = new String(readPuffer).substring(0, readPuffer.length()-1);
 					in.close();
@@ -135,7 +135,7 @@ public class Graphic implements ActionListener{
 			catch(IOException e2){
 				System.out.println("Open error " + e2);
 			}
-			return textContainer.split(System.getProperty("line.separator"));
+			return textContainer.split("%");
 		}
 		return null;
 	}
@@ -148,7 +148,7 @@ public class Graphic implements ActionListener{
 			newProgram = newProgram.concat(program[i] + System.getProperty("line.separator"));
 		}
 		this.ram.load(newProgram, program[0]);
-		System.out.println("newProgram: " + newProgram);
+		System.out.println("newProgram:\n" + newProgram);
 		this.programArea.setText(newProgram);
 	}
 
