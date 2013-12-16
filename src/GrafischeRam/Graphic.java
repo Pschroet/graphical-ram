@@ -56,14 +56,14 @@ public class Graphic implements ActionListener{
 		//create the menu bar and it's elements
 		this.menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
-		this.saveProgram = new JMenuItem("Save program");
-		this.saveProgram.setActionCommand("save");
-		this.saveProgram.addActionListener(this);
-		fileMenu.add(saveProgram);
 		this.loadProgram = new JMenuItem("Load program");
 		this.loadProgram.setActionCommand("load");
 		this.loadProgram.addActionListener(this);
 		fileMenu.add(loadProgram);
+		this.saveProgram = new JMenuItem("Save program");
+		this.saveProgram.setActionCommand("save");
+		this.saveProgram.addActionListener(this);
+		fileMenu.add(saveProgram);
 		this.exit = new JMenuItem("Exit");
 		this.exit.setActionCommand("exit");
 		this.exit.addActionListener(this);
@@ -265,6 +265,29 @@ public class Graphic implements ActionListener{
 		this.showCurrentLine();
 	}
 	
+	private void saveProgram(){
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.showSaveDialog(null);
+	    if(fileChooser.getSelectedFile() != null){
+	    	File selFile = fileChooser.getSelectedFile();
+		    String outputText = getRegisters() + System.getProperty("line.separator") + this.programArea.getText();
+			FileOutputStream fileOut = null;
+			try{
+				fileOut = new FileOutputStream(selFile.getPath());
+			}
+			catch(FileNotFoundException e1){
+				e1.printStackTrace();
+			}
+			try{
+				fileOut.write(outputText.getBytes(), 0, outputText.length());
+				fileOut.close();
+			}
+			catch(IOException e2){
+				e2.printStackTrace();
+			}
+	    }
+	}
+	
 	//adds a new register with the given content, also updates the registers of the ram
 	private void addRegister(String content){
 		JTextField[] tmp = new JTextField[this.registersFields.length + 1];
@@ -287,13 +310,18 @@ public class Graphic implements ActionListener{
 		this.frame.revalidate();
 	}
 	
-	//reloads the program from the window and takes the content from the registers and gives it to the underlying ram
-	private void reloadProgram(){
-		String newRegisters = this.registersFields[0].getText();
+	private String getRegisters(){
+		String registers = this.registersFields[0].getText();
 		//get all the contents of the registers and create a string that contains them is separated by semicolons, except the first, because it should not start with semicolon
 		for(int i = 1; i < this.registersFields.length; i++){
-			newRegisters = newRegisters.concat(";" + this.registersFields[i].getText());
+			registers = registers.concat(";" + this.registersFields[i].getText());
 		}
+		return registers;
+	}
+	
+	//reloads the program from the window and takes the content from the registers and gives it to the underlying ram
+	private void reloadProgram(){
+		String newRegisters = getRegisters();
 		//combine the register string and the program to an array and give it to the ram by passing it to loadNewProgram
 		String[] newProgram = this.programArea.getText().split(System.getProperty("line.separator"));
 		String[] inputToLoad = new String[newProgram.length + 1];
@@ -307,29 +335,6 @@ public class Graphic implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		switch(e.getActionCommand()){
-			case "save":
-				JFileChooser fileChooser = new JFileChooser();
-				fileChooser.showSaveDialog(null);
-			    if(fileChooser.getSelectedFile() != null){
-			    	File selFile = fileChooser.getSelectedFile();
-		
-				    String outputText = this.programArea.getText();
-					FileOutputStream fileOut = null;
-					try{
-						fileOut = new FileOutputStream(selFile.getPath());
-					}
-					catch(FileNotFoundException e1){
-						e1.printStackTrace();
-					}
-					try{
-						fileOut.write(outputText.getBytes(), 0, outputText.length());
-						fileOut.close();
-					}
-					catch(IOException e2){
-						e2.printStackTrace();
-					}
-			    }
-			    break;
 			case "load":
 				String[] newProgramLines = chooseProgramFile();
 				if(newProgramLines != null){
@@ -337,6 +342,9 @@ public class Graphic implements ActionListener{
 				}
 				this.output.setText("");
 				break;
+			case "save":
+				saveProgram();
+			    break;
 			case "exit":
 				System.exit(0);
 				break;
