@@ -278,7 +278,7 @@ public class Ram{
 	}
 	
 	//checks a halve of an assignment and returns it's value
-	int getElement(String half){
+	private int getElement(String half){
 		if(half.matches("[(].*[)]")){
 			return this.Registers[this.Registers[Integer.parseInt(half.replace("(", "").replace(")", "").replace("R", ""))]];
 		}
