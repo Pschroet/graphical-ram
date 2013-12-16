@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import javax.swing.BoxLayout;
@@ -25,7 +27,9 @@ public class Graphic implements ActionListener{
 	private Ram ram;
 	private JFrame frame;
 	private JMenuBar menuBar;
+	private JMenuItem saveProgram;
 	private JMenuItem loadProgram;
+	private JMenuItem exit;
 	private JPanel registerPanel;		//contains the register fields and their values
 	private JPanel registersPanel;
 	private JTextField[] registersFields;
@@ -45,27 +49,31 @@ public class Graphic implements ActionListener{
 	public Graphic(Ram ram){
 		this.ram = ram;
 		//create the main frame and set it's default values
-		frame = new JFrame("Graphical Ram");
-		frame.setSize(800,600);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLayout(new BorderLayout());
+		this.frame = new JFrame("Graphical Ram");
+		this.frame.setSize(800,600);
+		this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.frame.setLayout(new BorderLayout());
 		//create the menu bar and it's elements
-		menuBar = new JMenuBar();
+		this.menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
-		loadProgram = new JMenuItem("Load program");
-		loadProgram.setActionCommand("load");
-		loadProgram.addActionListener(this);
+		this.saveProgram = new JMenuItem("Save program");
+		this.saveProgram.setActionCommand("save");
+		this.saveProgram.addActionListener(this);
+		fileMenu.add(saveProgram);
+		this.loadProgram = new JMenuItem("Load program");
+		this.loadProgram.setActionCommand("load");
+		this.loadProgram.addActionListener(this);
 		fileMenu.add(loadProgram);
-		JMenuItem exit = new JMenuItem("Exit");
-		exit.setActionCommand("exit");
-		exit.addActionListener(this);
-		fileMenu.add(exit);
+		this.exit = new JMenuItem("Exit");
+		this.exit.setActionCommand("exit");
+		this.exit.addActionListener(this);
+		fileMenu.add(this.exit);
 		this.menuBar.add(fileMenu);
 		this.frame.setJMenuBar(this.menuBar);
 		//create the panel for the registers
 		this.registerPanel = new JPanel(new BorderLayout());
 		//create a button to add more registers
-		this.newRegister = new JButton("add Register");
+		this.newRegister = new JButton("Add Register");
 		this.newRegister.setActionCommand("newRegister");
 		this.newRegister.addActionListener(this);
 		this.registerPanel.add(this.newRegister, BorderLayout.WEST);
@@ -189,9 +197,13 @@ public class Graphic implements ActionListener{
 				catch(IOException e1){
 					System.out.println("Read error " + e1);
 				}
+				catch(StringIndexOutOfBoundsException e2){
+					//if the file is empty return null, so nothing will be loaded
+					return null;
+				}
 			}
-			catch(IOException e2){
-				System.out.println("Open error " + e2);
+			catch(IOException e3){
+				System.out.println("Open error " + e3);
 			}
 			return textContainer.split("%");
 		}
@@ -295,6 +307,29 @@ public class Graphic implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		switch(e.getActionCommand()){
+			case "save":
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.showSaveDialog(null);
+			    if(fileChooser.getSelectedFile() != null){
+			    	File selFile = fileChooser.getSelectedFile();
+		
+				    String outputText = this.programArea.getText();
+					FileOutputStream fileOut = null;
+					try{
+						fileOut = new FileOutputStream(selFile.getPath());
+					}
+					catch(FileNotFoundException e1){
+						e1.printStackTrace();
+					}
+					try{
+						fileOut.write(outputText.getBytes(), 0, outputText.length());
+						fileOut.close();
+					}
+					catch(IOException e2){
+						e2.printStackTrace();
+					}
+			    }
+			    break;
 			case "load":
 				String[] newProgramLines = chooseProgramFile();
 				if(newProgramLines != null){
