@@ -115,7 +115,18 @@ public class Graphic implements ActionListener{
 	}
 	
 	private void updateRegister(){
-		
+		//create a panel to show the registers
+		if(this.registerPanel != null){
+			this.registerPanel.removeAll();
+			this.registerPanel.add(this.newRegister);
+		}
+		for(int i = 0; i < this.nrRegisters; i++){
+			registersFields[i] = new JTextField(5);
+			registersFields[i].setText(String.valueOf(ram.Registers[i]));
+			this.registerPanel.add(registersFields[i]);
+		}
+		this.frame.add(this.registerPanel, BorderLayout.NORTH);
+		this.frame.revalidate();
 	}
 	
 	//creates a panel that shows in which line the ram currently is in
@@ -133,7 +144,6 @@ public class Graphic implements ActionListener{
 			}
 			else{
 				label = new JLabel("->");
-				System.out.println(i);
 			}
 			this.currentLine.add(label);
 		}
@@ -238,14 +248,17 @@ public class Graphic implements ActionListener{
 				break;
 			case "computeLine":
 				this.output.setText((this.ram.computeLine()));
+				this.updateRegister();
 				showCurrentLine();
 				break;
 			case "computeProgram":
 				synchronized(this){
 					String run = (this.ram.computeLine());
+					this.updateRegister();
 					this.output.setText(run);
 					while(!run.matches("No possiblity to compute further.*") && !run.matches("End of program reached.*") && ! run.matches("Syntax not allowed.*")){
 						run = (this.ram.computeLine());
+						this.updateRegister();
 						this.output.setText(run);
 					}
 				}

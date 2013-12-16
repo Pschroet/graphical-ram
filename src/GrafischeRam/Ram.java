@@ -95,6 +95,11 @@ public class Ram{
 		if(computingLine.matches("HALT")){
 			return "End of program reached";
 		}
+		//if the current line is empty or contains only white spaces
+		if(computingLine.matches("") || computingLine.matches("\\s*")){
+			this.currentLine++;
+			return "go one line further";
+		}
 		if(computingLine.matches("R[0-9]+:=((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|[0-9]+)((\\+|\\-|\\*|\\/)((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|([0-9]+)))?")){
 			String[] currentContent = computingLine.split(":=");
 			//check the left part
