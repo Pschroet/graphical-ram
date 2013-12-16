@@ -27,6 +27,7 @@ public class Graphic implements ActionListener{
 	private JMenuBar menuBar;
 	private JMenuItem loadProgram;
 	private JPanel registerPanel;		//contains the register fields and their values
+	private JPanel registersPanel;
 	private JTextField[] registersFields;
 	private JButton newRegister;
 	private int nrRegisters;
@@ -60,20 +61,23 @@ public class Graphic implements ActionListener{
 		this.menuBar.add(fileMenu);
 		this.frame.setJMenuBar(this.menuBar);
 		//create the panel for the registers
-		this.registerPanel = new JPanel(new FlowLayout());
+		this.registerPanel = new JPanel(new BorderLayout());
 		//create a button to add more registers
 		this.newRegister = new JButton("add Register");
 		this.newRegister.setActionCommand("newRegister");
 		this.newRegister.addActionListener(this);
-		this.registerPanel.add(this.newRegister);
+		this.registerPanel.add(this.newRegister, BorderLayout.WEST);
+		//create a panel separately for the registers
+		this.registersPanel = new JPanel(new FlowLayout());
 		//create a text field for every register, put the content of the register into it, put it into the register panel and all together in the main frame
 		registersFields = new JTextField[ram.Registers.length];
 		this.nrRegisters = ram.Registers.length;
 		for(int i = 0; i < ram.Registers.length; i++){
 			registersFields[i] = new JTextField(5);
 			registersFields[i].setText(String.valueOf(ram.Registers[i]));
-			this.registerPanel.add(registersFields[i]);
+			this.registersPanel.add(registersFields[i]);
 		}
+		this.registerPanel.add(registersPanel, BorderLayout.CENTER);
 		this.frame.add(this.registerPanel, BorderLayout.NORTH);
 		//create the text area for the programm and put it into the programm panel
 		this.programArea = new JTextArea(25, 50);
@@ -107,15 +111,23 @@ public class Graphic implements ActionListener{
 	
 	private void updateRegister(){
 		//create a panel to show the registers
-		if(this.registerPanel != null){
-			this.registerPanel.removeAll();
-			this.registerPanel.add(this.newRegister);
+		if(this.registersPanel != null){
+			this.registersPanel.removeAll();
 		}
+		else{
+			this.registersPanel = new JPanel(new FlowLayout());
+		}
+		//create a text field for each register
 		for(int i = 0; i < this.nrRegisters; i++){
-			registersFields[i] = new JTextField(5);
-			registersFields[i].setText(String.valueOf(ram.Registers[i]));
-			this.registerPanel.add(registersFields[i]);
+			this.registersFields[i] = new JTextField(5);
+			this.registersPanel.add(registersFields[i]);
 		}
+		//fill the registers with values, but only those used by the ram
+		for(int i = 0; i < this.ram.Registers.length; i++){
+			this.registersFields[i].setText(String.valueOf(ram.Registers[i]));
+		}
+		this.registersPanel.repaint();
+		this.registerPanel.add(this.registersPanel, BorderLayout.CENTER);
 		this.frame.add(this.registerPanel, BorderLayout.NORTH);
 		this.frame.revalidate();
 	}
@@ -185,13 +197,43 @@ public class Graphic implements ActionListener{
 		}
 		//get the registers from the file
 		String[] registers = program[0].split(";");
-		for(int i = 0; i < this.registersFields.length; i++){
-			registersFields[i].setText(registers[i]);
+		//if there are more registers in the GUI, remove them, i. e. create a new panel with less
+		if(registers.length < this.nrRegisters){
+			//create a panel to show the registers
+			if(this.registersPanel != null){
+				this.registersPanel.removeAll();
+			}
+			else{
+				this.registersPanel = new JPanel(new FlowLayout());
+			}
+			for(int i = 0; i < registers.length; i++){
+				registersFields[i] = new JTextField(5);
+				registersFields[i].setText(String.valueOf(registers[i]));
+				this.registersPanel.add(registersFields[i]);
+			}
+			//create a new set of registers with the correct size
+			JTextField[] tmp = new JTextField[registers.length];
+			//put the values from the old registers into the new ones and link it to registersFields
+			for(int i = 0; i < registers.length; i++){
+				tmp[i] = this.registersFields[i];
+			}
+			this.registersFields = tmp;
+			//put the panels into the upper elements
+			this.registerPanel.add(this.registersPanel, BorderLayout.CENTER);
+			this.registerPanel.repaint();
+			this.frame.add(this.registerPanel, BorderLayout.NORTH);
+			this.frame.revalidate();
+			this.nrRegisters = registers.length;
 		}
-		//if the loaded file contains more registers create them
-		if(registers.length > this.nrRegisters){
-			for(int i = this.registersFields.length; i < registers.length; i++){
-				addRegister(registers[i]);
+		else{
+			for(int i = 0; i < this.registersFields.length; i++){
+				registersFields[i].setText(registers[i]);
+			}
+			//if the loaded file contains more registers create them
+			if(registers.length > this.nrRegisters){
+				for(int i = this.registersFields.length; i < registers.length; i++){
+					addRegister(registers[i]);
+				}
 			}
 		}
 		//pass the program and the registers to the ram
@@ -215,8 +257,9 @@ public class Graphic implements ActionListener{
 		this.registersFields = tmp;
 		//add the registers to the frame
 		for(int i = 0; i < this.registersFields.length; i++){
-			this.registerPanel.add(this.registersFields[i]);
+			this.registersPanel.add(this.registersFields[i]);
 		}
+		this.registerPanel.add(this.registersPanel, BorderLayout.CENTER);
 		this.nrRegisters++;
 		this.frame.revalidate();
 	}
