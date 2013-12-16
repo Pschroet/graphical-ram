@@ -3,6 +3,7 @@ package GrafischeRam;
 import GrafischeRam.Ram;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -37,6 +38,19 @@ public class Graphic implements ActionListener{
 	private int nrRegisters;
 	private JPanel programPanel;		//contains the program
 	private JTextArea programArea;
+	private JPanel costMeasure;
+	private JLabel ucmLabel;
+	private JLabel ucmOrder;
+	private JLabel ucmMemory;
+	private JLabel ucmTotalLabel;
+	private JLabel ucmOrderTotal;
+	private JLabel ucmMemoryTotal;
+	private JLabel lcmLabel;
+	private JLabel lcmOrder;
+	private JLabel lcmMemory;
+	private JLabel lcmOrderTotal;
+	private JLabel lcmMemoryTotal;
+	private JLabel lcmTotalLabel;
 	private JPanel progressPanel;		//contains the compute buttons
 	private JPanel buttonPanel;
 	private JButton reloadButton;
@@ -96,7 +110,42 @@ public class Graphic implements ActionListener{
 		this.programPanel.add(programArea, BorderLayout.CENTER);
 		this.frame.add(this.programPanel, BorderLayout.CENTER);
 		this.showCurrentLine();
-		//create three buttons, th first to reload the program, the second to compute one line, the third to compute all possible...
+		//create  the panel for the cost measure
+		this.costMeasure = new JPanel(new GridLayout(0, 3, 10, 0));
+		this.costMeasure.add(new JLabel(" "));
+		this.costMeasure.add(new JLabel("Order"));
+		this.costMeasure.add(new JLabel("Memory"));
+		
+		this.ucmLabel = new JLabel("UCM");
+		this.costMeasure.add(this.ucmLabel);
+		this.ucmOrder = new JLabel("0");
+		this.costMeasure.add(this.ucmOrder);
+		this.ucmMemory = new JLabel("0");
+		this.costMeasure.add(this.ucmMemory);
+		
+		this.ucmTotalLabel = new JLabel("Total UCM");
+		this.costMeasure.add(this.ucmTotalLabel);
+		this.ucmOrderTotal = new JLabel("0");
+		this.costMeasure.add(this.ucmOrderTotal);
+		this.ucmMemoryTotal = new JLabel("0");
+		this.costMeasure.add(this.ucmMemoryTotal);
+		
+		this.lcmLabel = new JLabel("LCM");
+		this.costMeasure.add(this.lcmLabel);
+		this.lcmOrder = new JLabel("0");
+		this.costMeasure.add(this.lcmOrder);
+		this.lcmMemory = new JLabel("0");
+		this.costMeasure.add(this.lcmMemory);
+		
+		this.lcmTotalLabel = new JLabel("Total LCM");
+		this.costMeasure.add(this.lcmTotalLabel);
+		this.lcmOrderTotal = new JLabel("0");
+		this.costMeasure.add(this.lcmOrderTotal);
+		this.lcmMemoryTotal = new JLabel("0");
+		this.costMeasure.add(this.lcmMemoryTotal);
+		
+		this.frame.add(this.costMeasure, BorderLayout.EAST);
+		//create three buttons, the first to reload the program, the second to compute one line, the third to compute all possible...
 		this.reloadButton = new JButton("(Re)Load program");
 		this.reloadButton.addActionListener(this);
 		this.reloadButton.setActionCommand("reload");
@@ -360,6 +409,14 @@ public class Graphic implements ActionListener{
 				this.output.setText((this.ram.computeLine()));
 				this.updateRegister();
 				showCurrentLine();
+				//get the unified costs of the current line and display them
+				int[] unifiedCost = this.ram.getCurrentUnifiedCost();
+				this.ucmOrder.setText(String.valueOf(unifiedCost[0]));
+				this.ucmMemory.setText(String.valueOf(unifiedCost[1]));
+				//get the total unified costs and display them
+				int[] unifiedTotalCost = this.ram.getTotalUnifiedCost();
+				this.ucmOrderTotal.setText(String.valueOf(unifiedTotalCost[0]));
+				this.ucmMemoryTotal.setText(String.valueOf(unifiedTotalCost[1]));
 				this.computeLine.setEnabled(true);
 				break;
 			case "computeProgram":

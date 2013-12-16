@@ -10,12 +10,28 @@ public class Ram{
 	Hashtable<String, Integer> labels;						//name of the labels (e.g. L1) and the corresponding line
 	int currentLine;
 	int[] Registers;
+	private int ucmOrder;
+	private int ucmMemory;
+	private int ucmOrderTotal;
+	private int ucmMemoryTotal;
+	private int lcmOrder;
+	private int lcmMemory;
+	private int lcmOrderTotal;
+	private int lcmMemoryTotal;
 	
 	public Ram(){
 		this.Registers = new int[0];
 		this.program = "";
 		this.lines = new String[0];
 		this.currentLine = -1;
+		this.ucmOrder = 0;
+		this.ucmMemory = 0;
+		this.ucmOrderTotal = 0;
+		this.ucmMemoryTotal = 0;
+		this.lcmOrder = 0;
+		this.lcmMemory = 0;
+		this.lcmOrderTotal = 0;
+		this.lcmMemoryTotal = 0;
 	}
 	//initiates all things necessary to compute the given program
 	//p - program
@@ -27,6 +43,10 @@ public class Ram{
 		this.currentLine = 0;
 		this.getLabels();
 		this.fillRegisters(r);
+		this.ucmOrderTotal = 0;
+		this.ucmMemoryTotal = 0;
+		this.lcmOrderTotal = 0;
+		this.lcmMemoryTotal = 0;
 	}
 	
 	//reads the contents of the given registers and transforms them into integer
@@ -86,10 +106,16 @@ public class Ram{
 		this.currentLine = 0;
 		this.getLabels();
 		this.fillRegisters(r);
+		this.ucmOrderTotal = 0;
+		this.ucmMemoryTotal = 0;
+		this.lcmOrderTotal = 0;
+		this.lcmMemoryTotal = 0;
 	}
 	
 	//compute one line of the ram and give the output
 	String computeLine(){
+		this.ucmMemory = 0;
+		this.ucmOrder = 0;
 		String computingLine = this.lines[this.currentLine].replaceAll("\\s", "");
 		//if a HALT comes, end the program
 		if(computingLine.matches("HALT")){
@@ -101,6 +127,8 @@ public class Ram{
 			return "go one line further";
 		}
 		if(computingLine.matches("R[0-9]+:=((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|[0-9]+)((\\+|\\-|\\*|\\/)((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|([0-9]+)))?")){
+			this.ucmOrder = 1;
+			this.ucmOrderTotal++;
 			String[] currentContent = computingLine.split(":=");
 			//check the left part
 			int leftElement;
@@ -111,9 +139,13 @@ public class Ram{
 				//element is indirect, so remove parentheses and 'R'
 				int indirectRegister = Integer.parseInt(currentContent[0].replace("(", "").replace(")", "").replace("R", ""));
 				leftElement = this.Registers[indirectRegister];
+				this.ucmMemory++;
+				this.ucmMemoryTotal++;
 			}
 			else{
 				leftElement = Integer.parseInt(currentContent[0].replace("R", ""));
+				this.ucmMemory++;
+				this.ucmMemoryTotal++;
 			}
 			//check the right part
 			String rightElement = currentContent[1];
@@ -196,6 +228,10 @@ public class Ram{
 			}
 		}
 		if(computingLine.matches("GGZ(R[0-9]*|[(]R[0-9]*[)]),L[0-9]*")){
+			this.ucmOrder = 1;
+			this.ucmOrderTotal++;
+			this.ucmMemory++;
+			this.ucmMemoryTotal++;
 			String[] elements = computingLine.replace("GGZ", "").replace("R", "").split(",");
 			if(elements[0].matches("[(][0-9]*[)]")){
 				int indirectRegister = this.Registers[this.Registers[Integer.parseInt(elements[0].replace("(", "").replace(")", ""))]];
@@ -220,6 +256,10 @@ public class Ram{
 			}
 		}
 		if(computingLine.matches("GLZ(R[0-9]*|[(]R[0-9]*[)]),L[0-9]*")){
+			this.ucmOrder = 1;
+			this.ucmOrderTotal++;
+			this.ucmMemory++;
+			this.ucmMemoryTotal++;
 			String[] elements = computingLine.replace("GLZ", "").replace("R", "").split(",");
 			if(elements[0].matches("[(][0-9]*[)]")){
 				int indirectRegister = this.Registers[this.Registers[Integer.parseInt(elements[0].replace("(", "").replace(")", ""))]];
@@ -244,6 +284,10 @@ public class Ram{
 			}
 		}
 		if(computingLine.matches("GZ(R[0-9]*|[(]R[0-9]*[)]),L[0-9]*")){
+			this.ucmOrder = 1;
+			this.ucmOrderTotal++;
+			this.ucmMemory++;
+			this.ucmMemoryTotal++;
 			String[] elements = computingLine.replace("GZ", "").replace("R", "").split(",");
 			if(elements[0].matches("[(][0-9]*[)]")){
 				int indirectRegister = this.Registers[this.Registers[Integer.parseInt(elements[0].replace("(", "").replace(")", ""))]];
@@ -269,6 +313,8 @@ public class Ram{
 		}
 		//if there is a GOTO just set the currentLine to the one which has the label
 		if(computingLine.matches("GOTO[L][0-9]*")){
+			this.ucmOrder = 1;
+			this.ucmOrderTotal++;
 			String nextLabel = computingLine.replace("GOTO", "");
 			int nextLine = this.labels.get(nextLabel);
 			this.currentLine = nextLine;
@@ -280,10 +326,14 @@ public class Ram{
 	//checks a halve of an assignment and returns it's value
 	private int getElement(String half){
 		if(half.matches("[(].*[)]")){
+			this.ucmMemory++;
+			this.ucmMemoryTotal++;
 			return this.Registers[this.Registers[Integer.parseInt(half.replace("(", "").replace(")", "").replace("R", ""))]];
 		}
 		//register
 		if(half.matches("R[0-9]*")){
+			this.ucmMemory++;
+			this.ucmMemoryTotal++;
 			return this.Registers[Integer.parseInt(half.replace("R", ""))];
 		}
 		//constant
@@ -300,5 +350,29 @@ public class Ram{
 	//load a new set of registers and program and sets these to be the new registers and program to be computed
 	void load(String newProgram, String newRegisters){
 		this.setProgramAndRegisters(newProgram, newRegisters);
+	}
+	
+	//returns the cost of the current line in the unified cost measure
+	int[] getCurrentUnifiedCost(){
+		int[] toReturn = {this.ucmOrder, this.ucmMemory};
+		return toReturn;
+	}
+	
+	//returns the total cost in the unified cost measure
+	int[] getTotalUnifiedCost(){
+		int[] toReturn = {this.ucmOrderTotal, this.ucmMemoryTotal};
+		return toReturn;
+	}
+	
+	//returns the cost of the current line in the logarithmic cost measure
+	int[] getCurrentLogarithmicCost(){
+		int[] toReturn = {this.lcmOrder, this.lcmMemory};
+		return toReturn;
+	}
+	
+	//returns the total cost in the logarithmic cost measure
+	int[] getTotalLogarithmicCost(){
+		int[] toReturn = {this.lcmOrderTotal, this.lcmMemoryTotal};
+		return toReturn;
 	}
 }
