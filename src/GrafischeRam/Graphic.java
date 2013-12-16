@@ -34,6 +34,8 @@ public class Graphic implements ActionListener{
 	private JPanel programPanel;		//contains the program
 	private JTextArea programArea;
 	private JPanel progressPanel;		//contains the compute buttons
+	private JPanel buttonPanel;
+	private JButton reloadButton;
 	private JPanel currentLine;
 	private JButton computeLine;
 	private JButton computeProgram;
@@ -86,21 +88,28 @@ public class Graphic implements ActionListener{
 		this.programPanel.add(programArea, BorderLayout.CENTER);
 		this.frame.add(this.programPanel, BorderLayout.CENTER);
 		this.showCurrentLine();
-		//create two buttons, the first to compute one line, the second to compute all possible...
-		this.computeLine = new JButton("compute current line");
+		//create three buttons, th first to reload the program, the second to compute one line, the third to compute all possible...
+		this.reloadButton = new JButton("Reload program");
+		this.reloadButton.addActionListener(this);
+		this.reloadButton.setActionCommand("reload");
+		this.computeLine = new JButton("Compute current line");
 		this.computeLine.addActionListener(this);
 		this.computeLine.setActionCommand("computeLine");
-		this.computeProgram = new JButton("compute program");
+		this.computeProgram = new JButton("Compute program");
 		this.computeProgram.addActionListener(this);
 		this.computeProgram.setActionCommand("computeProgram");
 		//and add both to the progressPanel, which is added to the main frame
-		this.progressPanel = new JPanel(new FlowLayout());
-		this.progressPanel.add(this.computeLine);
-		this.progressPanel.add(this.computeProgram);
+		this.progressPanel = new JPanel(new BorderLayout());
+		//create a panel for the buttons, add them and then add the button panel to the progress panel
+		this.buttonPanel = new JPanel(new FlowLayout());
+		this.buttonPanel.add(this.reloadButton);
+		this.buttonPanel.add(this.computeLine);
+		this.buttonPanel.add(this.computeProgram);
+		this.progressPanel.add(buttonPanel, BorderLayout.WEST);
 		//create the text field for the output and make it uneditable
-		this.output = new JTextField(20);
+		this.output = new JTextField(50);
 		this.output.setEditable(false);
-		this.progressPanel.add(this.output);
+		this.progressPanel.add(this.output, BorderLayout.CENTER);
 		//create the panel for the output, put the text field for the output in it and put the panel in the frame
 		this.frame.add(this.progressPanel, BorderLayout.SOUTH);
 		//create a scroll pane so content not fitting in the window will be shown
@@ -240,6 +249,7 @@ public class Graphic implements ActionListener{
 		this.ram.load(newProgram, program[0]);
 		//put the program in the program area
 		this.programArea.setText(newProgram);
+		this.showCurrentLine();
 	}
 	
 	//adds a new register with the given content, also updates the registers of the ram
@@ -263,6 +273,25 @@ public class Graphic implements ActionListener{
 		this.nrRegisters++;
 		this.frame.revalidate();
 	}
+	
+	private void reloadProgram(){
+		String newRegisters = this.registersFields[0].getText();
+		//get all the contents of the registers and create a string that contains them is separated by semicolons, except the first, because it should not start with semicolon
+		System.out.println("this.registersFields.length: " + this.registersFields.length);
+		for(int i = 1; i < this.registersFields.length; i++){
+			newRegisters = newRegisters.concat(";" + this.registersFields[i].getText());
+		}
+		System.out.println("newRegisters: " + newRegisters);
+		//combine the register string and the program to an array and give it to the ram by passing it to loadNewProgram
+		String[] newProgram = this.programArea.getText().split(System.getProperty("line.separator"));
+		String[] inputToLoad = new String[newProgram.length + 1];
+		inputToLoad[0] = newRegisters;
+		for(int i = 0; i < newProgram.length; i++){
+			inputToLoad[i+1] = newProgram[i];
+			System.out.println(newProgram[i]);
+		}
+		this.loadNewProgram(inputToLoad);
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -279,6 +308,10 @@ public class Graphic implements ActionListener{
 				break;
 			case "newRegister":
 				this.addRegister("0");
+				break;
+			case "reload":
+				this.reloadProgram();
+				this.updateRegister();
 				break;
 			case "computeLine":
 				this.computeLine.setEnabled(false);

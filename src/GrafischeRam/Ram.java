@@ -33,6 +33,7 @@ public class Ram{
 	private void fillRegisters(String registers){
 		//read the contents of the registers...
 		String[] temp = registers.split(";");
+		System.out.println("temp.length: " + temp.length);
 		this.Registers = new int[temp.length];
 		//and make each one an integer
 		for(int i = 0; i < temp.length; i++){
@@ -90,7 +91,7 @@ public class Ram{
 	
 	//compute one line of the ram and give the output
 	String computeLine(){
-		String computingLine = this.lines[this.currentLine].replace(" ", "");
+		String computingLine = this.lines[this.currentLine].replaceAll("\\s", "");
 		//if a HALT comes, end the program
 		if(computingLine.matches("HALT")){
 			return "End of program reached";

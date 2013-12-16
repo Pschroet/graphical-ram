@@ -1,5 +1,5 @@
 1;5
-L1 R1 := (R0) - 1
+L1 R1 := R0 - 1
 GZ (R0), L2
 GOTO L1
 L2 HALT
