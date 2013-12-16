@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -19,10 +18,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
 
 public class Graphic implements ActionListener{
 	private Ram ram;
@@ -83,12 +80,6 @@ public class Graphic implements ActionListener{
 		this.programArea.setEditable(true);
 		this.programPanel = new JPanel(new BorderLayout());
 		this.programPanel.add(programArea, BorderLayout.CENTER);
-		//create the labels which show the lines
-		//JTextPane textPane = new JTextPane();
-		//JScrollPane scrollPane = new JScrollPane(textPane);
-		//TextLineNumber tln = new TextLineNumber(textPane);
-		//scrollPane.setRowHeaderView( tln );
-		//this.programPanel.add(scrollPane);
 		this.frame.add(this.programPanel, BorderLayout.CENTER);
 		this.showCurrentLine();
 		//create two buttons, the first to compute one line, the second to compute all possible...
