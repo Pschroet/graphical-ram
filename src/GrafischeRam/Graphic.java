@@ -294,10 +294,12 @@ public class Graphic implements ActionListener{
 				this.computeProgram.setEnabled(false);
 				String run = (this.ram.computeLine());
 				this.updateRegister();
+				showCurrentLine();
 				this.output.setText(run);
 				while(!run.matches("No possiblity to compute further.*") && !run.matches("End of program reached.*") && ! run.matches("Syntax not allowed.*")){
 					run = (this.ram.computeLine());
 					this.updateRegister();
+					showCurrentLine();
 					this.output.setText(run);
 				}
 				this.computeLine.setEnabled(true);
