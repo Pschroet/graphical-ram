@@ -89,7 +89,7 @@ public class Graphic implements ActionListener{
 		this.frame.add(this.programPanel, BorderLayout.CENTER);
 		this.showCurrentLine();
 		//create three buttons, th first to reload the program, the second to compute one line, the third to compute all possible...
-		this.reloadButton = new JButton("Reload program");
+		this.reloadButton = new JButton("(Re)Load program");
 		this.reloadButton.addActionListener(this);
 		this.reloadButton.setActionCommand("reload");
 		this.computeLine = new JButton("Compute current line");
@@ -118,6 +118,7 @@ public class Graphic implements ActionListener{
 		this.frame.validate();
 	}
 	
+	//updates the registers shown by the window
 	private void updateRegister(){
 		//create a panel to show the registers
 		if(this.registersPanel != null){
@@ -274,21 +275,19 @@ public class Graphic implements ActionListener{
 		this.frame.revalidate();
 	}
 	
+	//reloads the program from the window and takes the content from the registers and gives it to the underlying ram
 	private void reloadProgram(){
 		String newRegisters = this.registersFields[0].getText();
 		//get all the contents of the registers and create a string that contains them is separated by semicolons, except the first, because it should not start with semicolon
-		System.out.println("this.registersFields.length: " + this.registersFields.length);
 		for(int i = 1; i < this.registersFields.length; i++){
 			newRegisters = newRegisters.concat(";" + this.registersFields[i].getText());
 		}
-		System.out.println("newRegisters: " + newRegisters);
 		//combine the register string and the program to an array and give it to the ram by passing it to loadNewProgram
 		String[] newProgram = this.programArea.getText().split(System.getProperty("line.separator"));
 		String[] inputToLoad = new String[newProgram.length + 1];
 		inputToLoad[0] = newRegisters;
 		for(int i = 0; i < newProgram.length; i++){
 			inputToLoad[i+1] = newProgram[i];
-			System.out.println(newProgram[i]);
 		}
 		this.loadNewProgram(inputToLoad);
 	}

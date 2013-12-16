@@ -33,7 +33,6 @@ public class Ram{
 	private void fillRegisters(String registers){
 		//read the contents of the registers...
 		String[] temp = registers.split(";");
-		System.out.println("temp.length: " + temp.length);
 		this.Registers = new int[temp.length];
 		//and make each one an integer
 		for(int i = 0; i < temp.length; i++){
@@ -281,22 +280,18 @@ public class Ram{
 	//checks a halve of an assignment and returns it's value
 	int getElement(String half){
 		if(half.matches("[(].*[)]")){
-			//System.out.println("a link to a register");
 			return this.Registers[this.Registers[Integer.parseInt(half.replace("(", "").replace(")", "").replace("R", ""))]];
 		}
 		//register
 		if(half.matches("R[0-9]*")){
-			//System.out.println("a register");
 			return this.Registers[Integer.parseInt(half.replace("R", ""))];
 		}
 		//constant
 		if(half.matches("[0-9]*")){
-			//System.out.println("a number");
 			return Integer.parseInt(half);
 		}
 		//negative constant
 		if(half.matches("\\-[0-9]*")){
-			//System.out.println("a number");
 			return Integer.parseInt(half);
 		}
 		return 0;
