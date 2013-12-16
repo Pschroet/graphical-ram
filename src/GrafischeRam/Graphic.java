@@ -138,6 +138,7 @@ public class Graphic implements ActionListener{
 			this.currentLine.add(label);
 		}
 		this.frame.add(this.currentLine, BorderLayout.WEST);
+		this.frame.revalidate();
 	}
 	//puts the given output into the text field for it
 	void setOutput(String output){
