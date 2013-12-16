@@ -9,9 +9,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -33,6 +36,7 @@ public class Graphic implements ActionListener{
 	private JPanel programPanel;		//contains the program
 	private JTextArea programArea;
 	private JPanel progressPanel;		//contains the compute buttons
+	private JPanel currentLine;
 	private JButton computeLine;
 	private JButton computeAll;
 	private JTextField output;
@@ -86,6 +90,7 @@ public class Graphic implements ActionListener{
 		//scrollPane.setRowHeaderView( tln );
 		//this.programPanel.add(scrollPane);
 		this.frame.add(this.programPanel, BorderLayout.CENTER);
+		this.showCurrentLine();
 		//create two buttons, the first to compute one line, the second to compute all possible...
 		this.computeLine = new JButton("compute line");
 		this.computeLine.addActionListener(this);
@@ -109,10 +114,34 @@ public class Graphic implements ActionListener{
 		this.frame.validate();
 	}
 	
+	private void updateRegister(){
+		
+	}
+	
+	//creates a panel that shows in which line the ram currently is in
+	private void showCurrentLine(){
+		//create a panel to show which line is currently worked on
+		if(this.currentLine != null){
+			this.currentLine.removeAll();
+		}
+		this.currentLine = new JPanel();
+		this.currentLine.setLayout(new BoxLayout(this.currentLine, BoxLayout.PAGE_AXIS));
+		for(int i = 0; i < this.ram.lines.length; i++){
+			JLabel label;
+			if(i != this.ram.currentLine){
+				label = new JLabel(" ");
+			}
+			else{
+				label = new JLabel("->");
+				System.out.println(i);
+			}
+			this.currentLine.add(label);
+		}
+		this.frame.add(this.currentLine, BorderLayout.WEST);
+	}
 	//puts the given output into the text field for it
 	void setOutput(String output){
 		this.output.setText(output);
-		//this.frame.revalidate();
 	}
 	
 	//opens a file chooser, read the content of the file and return the lines in a String array
@@ -208,6 +237,7 @@ public class Graphic implements ActionListener{
 				break;
 			case "computeLine":
 				this.output.setText((this.ram.computeLine()));
+				showCurrentLine();
 				break;
 		}
 	}

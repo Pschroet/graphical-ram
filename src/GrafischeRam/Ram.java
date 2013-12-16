@@ -298,8 +298,6 @@ public class Ram{
 	
 	//load a new set of registers and program and sets these to be the new registers and program to be computed
 	void load(String newProgram, String newRegisters){
-		System.out.println("newProgram:\n" + newProgram);
-		System.out.println("newRegisters:\n" + newRegisters);
 		this.setProgramAndRegisters(newProgram, newRegisters);
 	}
 }
