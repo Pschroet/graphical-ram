@@ -34,7 +34,7 @@ public class Graphic implements ActionListener{
 	private JTextArea programArea;
 	private JPanel progressPanel;		//contains the compute buttons
 	private JButton computeLine;
-	private JButton computeAll;
+	private JButton computeProgram;
 	private JTextField output;
 	final JFileChooser fc = new JFileChooser();
 	
@@ -87,16 +87,16 @@ public class Graphic implements ActionListener{
 		//this.programPanel.add(scrollPane);
 		this.frame.add(this.programPanel, BorderLayout.CENTER);
 		//create two buttons, the first to compute one line, the second to compute all possible...
-		this.computeLine = new JButton("compute line");
+		this.computeLine = new JButton("compute current line");
 		this.computeLine.addActionListener(this);
 		this.computeLine.setActionCommand("computeLine");
-		this.computeAll = new JButton("compute all");
-		this.computeAll.addActionListener(this);
-		this.computeAll.setActionCommand("computeAll");
+		this.computeProgram = new JButton("compute program");
+		this.computeProgram.addActionListener(this);
+		this.computeProgram.setActionCommand("computeProgram");
 		//and add both to the progressPanel, which is added to the main frame
 		this.progressPanel = new JPanel(new FlowLayout());
 		this.progressPanel.add(this.computeLine);
-		this.progressPanel.add(this.computeAll);
+		this.progressPanel.add(this.computeProgram);
 		//create the text field for the output and make it uneditable
 		this.output = new JTextField(20);
 		this.output.setEditable(false);
@@ -208,6 +208,16 @@ public class Graphic implements ActionListener{
 				break;
 			case "computeLine":
 				this.output.setText((this.ram.computeLine()));
+				break;
+			case "computeProgram":
+				synchronized(this){
+					String run = (this.ram.computeLine());
+					this.output.setText(run);
+					while(!run.matches("No possiblity to compute further.*") && !run.matches("End of program reached.*") && ! run.matches("Syntax not allowed.*")){
+						run = (this.ram.computeLine());
+						this.output.setText(run);
+					}
+				}
 				break;
 		}
 	}
