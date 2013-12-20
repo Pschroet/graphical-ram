@@ -308,7 +308,7 @@ public class Graphic implements ActionListener{
 			}
 		}
 		//pass the program and the registers to the ram
-		this.ram.load(newProgram, program[0]);
+		this.ram.load(newProgram.replaceAll("(?<!\r)\n", System.getProperty("line.separator")), program[0]);
 		//put the program in the program area
 		this.programArea.setText(newProgram);
 		this.showCurrentLine();

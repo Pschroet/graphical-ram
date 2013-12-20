@@ -4,7 +4,6 @@ import java.util.Hashtable;
 
 public class Ram{
 	
-	String newLine = System.getProperty("line.separator");
 	String program;
 	String[] lines;
 	Hashtable<String, Integer> labels;						//name of the labels (e.g. L1) and the corresponding line
@@ -25,12 +24,12 @@ public class Ram{
 		this.lines = new String[0];
 		this.currentLine = -1;
 		this.ucmOrder = 0;
-		this.ucmMemory = 0;
 		this.ucmOrderTotal = 0;
+		this.ucmMemory = 0;
 		this.ucmMemoryTotal = 0;
 		this.lcmOrder = 0;
-		this.lcmMemory = 0;
 		this.lcmOrderTotal = 0;
+		this.lcmMemory = 0;
 		this.lcmMemoryTotal = 0;
 	}
 	//initiates all things necessary to compute the given program
@@ -43,9 +42,13 @@ public class Ram{
 		this.currentLine = 0;
 		this.getLabels();
 		this.fillRegisters(r);
+		this.ucmOrder = 0;
 		this.ucmOrderTotal = 0;
+		this.ucmMemory = 0;
 		this.ucmMemoryTotal = 0;
+		this.lcmOrder = 0;
 		this.lcmOrderTotal = 0;
+		this.lcmMemory = 0;
 		this.lcmMemoryTotal = 0;
 	}
 	
@@ -80,7 +83,7 @@ public class Ram{
 	
 	//splits the lines of the given program to make each line easy accessible and eliminates the newlines
 	private String[] partProgrammLines(String p){
-		return p.split(newLine);
+		return p.split(System.getProperty("line.separator"));
 	}
 	
 	//search for labels and save which line has which label
@@ -88,12 +91,11 @@ public class Ram{
 	private void getLabels(){
 		for(int i = 0; i < this.lines.length; i++){
 			//if the current line has a label get the label and save it's position and compute the line
-			if(this.lines[i].matches("^[L]\\d.*")){
-				String[] restLine = this.lines[i].split("[L]\\d");
+			if(this.lines[i].matches("^[L]\\d+.*")){
 				String label = this.lines[i].split(" ")[0];
 				this.labels.put(label, i);
 				//put the rest back as the new line
-				this.lines[i] = restLine[1].trim();
+				this.lines[i] = this.lines[i].split("[L]\\d+")[1];
 			}
 		}
 	}
@@ -102,13 +104,17 @@ public class Ram{
 	private void setProgramAndRegisters(String p, String r){
 		this.program = p;
 		this.lines = partProgrammLines(this.program);
-		labels = new Hashtable<String, Integer>();
+		this.labels = new Hashtable<String, Integer>();
 		this.currentLine = 0;
 		this.getLabels();
 		this.fillRegisters(r);
+		this.ucmOrder = 0;
 		this.ucmOrderTotal = 0;
+		this.ucmMemory = 0;
 		this.ucmMemoryTotal = 0;
+		this.lcmOrder = 0;
 		this.lcmOrderTotal = 0;
+		this.lcmMemory = 0;
 		this.lcmMemoryTotal = 0;
 	}
 	
@@ -127,7 +133,7 @@ public class Ram{
 			return "go one line further";
 		}
 		if(computingLine.matches("R[0-9]+:=((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|[0-9]+)((\\+|\\-|\\*|\\/)((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|([0-9]+)))?")){
-			this.ucmOrder = 1;
+			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			String[] currentContent = computingLine.split(":=");
 			//check the left part
@@ -135,15 +141,8 @@ public class Ram{
 			if(currentContent[0].trim().matches("[0-9]*")){
 				return "Syntax not allowed: Left element of an assignment may not be a constant.";
 			}
-			if(currentContent[0].trim().matches("[(].*[)]")){
-				//element is indirect, so remove parentheses and 'R'
-				int indirectRegister = Integer.parseInt(currentContent[0].replace("(", "").replace(")", "").replace("R", ""));
-				leftElement = this.Registers[indirectRegister];
-				this.ucmMemory++;
-				this.ucmMemoryTotal++;
-			}
 			else{
-				leftElement = Integer.parseInt(currentContent[0].replace("R", ""));
+				leftElement = Integer.parseInt(currentContent[0].replace("R", "").replace(" ", ""));
 				this.ucmMemory++;
 				this.ucmMemoryTotal++;
 			}
@@ -228,7 +227,7 @@ public class Ram{
 			}
 		}
 		if(computingLine.matches("GGZ(R[0-9]*|[(]R[0-9]*[)]),L[0-9]*")){
-			this.ucmOrder = 1;
+			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
 			this.ucmMemoryTotal++;
@@ -256,7 +255,7 @@ public class Ram{
 			}
 		}
 		if(computingLine.matches("GLZ(R[0-9]*|[(]R[0-9]*[)]),L[0-9]*")){
-			this.ucmOrder = 1;
+			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
 			this.ucmMemoryTotal++;
@@ -284,7 +283,7 @@ public class Ram{
 			}
 		}
 		if(computingLine.matches("GZ(R[0-9]*|[(]R[0-9]*[)]),L[0-9]*")){
-			this.ucmOrder = 1;
+			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
 			this.ucmMemoryTotal++;
@@ -313,7 +312,7 @@ public class Ram{
 		}
 		//if there is a GOTO just set the currentLine to the one which has the label
 		if(computingLine.matches("GOTO[L][0-9]*")){
-			this.ucmOrder = 1;
+			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			String nextLabel = computingLine.replace("GOTO", "");
 			int nextLine = this.labels.get(nextLabel);
@@ -325,9 +324,10 @@ public class Ram{
 	
 	//checks a halve of an assignment and returns it's value
 	private int getElement(String half){
+		//indirect register
 		if(half.matches("[(].*[)]")){
-			this.ucmMemory++;
-			this.ucmMemoryTotal++;
+			this.ucmMemory+=2;
+			this.ucmMemoryTotal+=2;
 			return this.Registers[this.Registers[Integer.parseInt(half.replace("(", "").replace(")", "").replace("R", ""))]];
 		}
 		//register
