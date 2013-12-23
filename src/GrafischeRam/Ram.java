@@ -375,4 +375,9 @@ public class Ram{
 		int[] toReturn = {this.lcmOrderTotal, this.lcmMemoryTotal};
 		return toReturn;
 	}
+	
+	//calcualtes the logarithm of a given register to base 2, by using two natural logarithm calculations
+	double calculateLogarithmicCost(int register){
+		return (Math.log1p(this.Registers[register])/Math.log1p(2));
+	}
 }
