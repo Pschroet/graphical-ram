@@ -134,14 +134,14 @@ public class Graphic implements ActionListener{
 		this.costMeasure.add(this.lcmLabel);
 		this.lcmOrder = new JLabel("0");
 		this.costMeasure.add(this.lcmOrder);
-		this.lcmMemory = new JLabel("0");
+		this.lcmMemory = new JLabel("-");
 		this.costMeasure.add(this.lcmMemory);
 		
 		this.lcmTotalLabel = new JLabel("Total LCM");
 		this.costMeasure.add(this.lcmTotalLabel);
 		this.lcmOrderTotal = new JLabel("0");
 		this.costMeasure.add(this.lcmOrderTotal);
-		this.lcmMemoryTotal = new JLabel("0");
+		this.lcmMemoryTotal = new JLabel("-");
 		this.costMeasure.add(this.lcmMemoryTotal);
 		
 		this.frame.add(this.costMeasure, BorderLayout.EAST);
@@ -413,10 +413,12 @@ public class Graphic implements ActionListener{
 				int[] unifiedCost = this.ram.getCurrentUnifiedCost();
 				this.ucmOrder.setText(String.valueOf(unifiedCost[0]));
 				this.ucmMemory.setText(String.valueOf(unifiedCost[1]));
+				this.lcmOrder.setText(String.valueOf(this.ram.getCurrentLogarithmicCost()));
 				//get the total unified costs and display them
 				int[] unifiedTotalCost = this.ram.getTotalUnifiedCost();
 				this.ucmOrderTotal.setText(String.valueOf(unifiedTotalCost[0]));
 				this.ucmMemoryTotal.setText(String.valueOf(unifiedTotalCost[1]));
+				this.lcmOrderTotal.setText(String.valueOf(this.ram.getTotalLogarithmicCost()));
 				this.computeLine.setEnabled(true);
 				break;
 			case "computeProgram":

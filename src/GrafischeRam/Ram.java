@@ -13,10 +13,8 @@ public class Ram{
 	private int ucmMemory;
 	private int ucmOrderTotal;
 	private int ucmMemoryTotal;
-	private int lcmOrder;
-	private int lcmMemory;
-	private int lcmOrderTotal;
-	private int lcmMemoryTotal;
+	private double lcmOrder;
+	private double lcmOrderTotal;
 	
 	public Ram(){
 		this.Registers = new int[0];
@@ -29,8 +27,6 @@ public class Ram{
 		this.ucmMemoryTotal = 0;
 		this.lcmOrder = 0;
 		this.lcmOrderTotal = 0;
-		this.lcmMemory = 0;
-		this.lcmMemoryTotal = 0;
 	}
 	//initiates all things necessary to compute the given program
 	//p - program
@@ -48,8 +44,6 @@ public class Ram{
 		this.ucmMemoryTotal = 0;
 		this.lcmOrder = 0;
 		this.lcmOrderTotal = 0;
-		this.lcmMemory = 0;
-		this.lcmMemoryTotal = 0;
 	}
 	
 	//reads the contents of the given registers and transforms them into integer
@@ -114,14 +108,13 @@ public class Ram{
 		this.ucmMemoryTotal = 0;
 		this.lcmOrder = 0;
 		this.lcmOrderTotal = 0;
-		this.lcmMemory = 0;
-		this.lcmMemoryTotal = 0;
 	}
 	
 	//compute one line of the ram and give the output
 	String computeLine(){
 		this.ucmMemory = 0;
 		this.ucmOrder = 0;
+		this.lcmOrder = 0;
 		String computingLine = this.lines[this.currentLine].replaceAll("\\s", "");
 		//if a HALT comes, end the program
 		if(computingLine.matches("HALT")){
@@ -145,15 +138,20 @@ public class Ram{
 				leftElement = Integer.parseInt(currentContent[0].replace("R", "").replace(" ", ""));
 				this.ucmMemory++;
 				this.ucmMemoryTotal++;
+				this.lcmOrder += this.calculateLogarithmicCost(leftElement);
 			}
 			//check the right part
 			String rightElement = currentContent[1];
 			if(rightElement.matches("[0-9]*")){
 				//go to next line
 				this.currentLine++;
-				this.Registers[leftElement] = Integer.parseInt(rightElement);
+				int number = Integer.parseInt(rightElement);
+				this.Registers[leftElement] = number;
+				this.lcmOrder += this.calculateLogarithmicCost(number);
+				this.lcmOrderTotal += this.lcmOrder;
 				return "Set Register " + leftElement + " to " + Integer.parseInt(rightElement);
 			}
+			//TODO: define more
 			if(currentContent[1].matches(".*\\+.*")){
 				String[] rightHalfs = currentContent[1].split("\\+");
 				//check what the left part of the right element is
@@ -176,6 +174,7 @@ public class Ram{
 				//go to next line
 				this.currentLine++;
 				this.Registers[leftElement] = rightLeftHalf * rightRightHalf;
+				this.lcmOrderTotal += this.lcmOrder;
 				return "Set Register " + leftElement + " to " + (rightLeftHalf * rightRightHalf);
 				
 			}
@@ -190,6 +189,7 @@ public class Ram{
 				//go to next line
 				this.currentLine++;
 				this.Registers[leftElement] = rightLeftHalf / rightRightHalf;
+				this.lcmOrderTotal += this.lcmOrder;
 				return "Set Register " + leftElement + " to " + (rightLeftHalf / rightRightHalf);
 			}
 			if(currentContent[1].matches(".*\\-.*")){
@@ -223,6 +223,7 @@ public class Ram{
 				//go to next line
 				this.currentLine++;
 				this.Registers[leftElement] = rightLeftHalf - rightRightHalf;
+				this.lcmOrderTotal += this.lcmOrder;
 				return "Set Register " + leftElement + " to " + (rightLeftHalf - rightRightHalf);
 			}
 		}
@@ -231,9 +232,10 @@ public class Ram{
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
 			this.ucmMemoryTotal++;
-			String[] elements = computingLine.replace("GGZ", "").replace("R", "").split(",");
-			if(elements[0].matches("[(][0-9]*[)]")){
-				int indirectRegister = this.Registers[this.Registers[Integer.parseInt(elements[0].replace("(", "").replace(")", ""))]];
+			String[] elements = computingLine.replace("GGZ", "").split(",");
+			/*if(elements[0].matches("[(][0-9]*[)]")){
+				//int indirectRegister = this.Registers[this.Registers[Integer.parseInt(elements[0].replace("(", "").replace(")", ""))]];
+				int indirectRegister = this.getElement(elements[0]);
 				if(indirectRegister > 0){
 					this.currentLine = this.labels.get(elements[1]);
 					return "Register " + indirectRegister + " == 0" + ". Go to line " + this.currentLine;
@@ -252,6 +254,17 @@ public class Ram{
 					this.currentLine++;
 					return "Register " + elements[0] + " != 0" + ". Just go one line further";
 				}
+			}*/
+			int result = this.getElement(elements[0]);
+			this.lcmOrder = this.calculateLogarithmicCost(result);
+			this.lcmOrderTotal += this.lcmOrder;
+			if(result > 0){
+				this.currentLine = this.labels.get(elements[1]);
+				return "Register " + elements[0] + " == 0" + ". Go to line " + this.currentLine;
+			}
+			else{
+				this.currentLine++;
+				return "Register " + elements[0] + " != 0" + ". Just go one line further";
 			}
 		}
 		if(computingLine.matches("GLZ(R[0-9]*|[(]R[0-9]*[)]),L[0-9]*")){
@@ -259,8 +272,8 @@ public class Ram{
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
 			this.ucmMemoryTotal++;
-			String[] elements = computingLine.replace("GLZ", "").replace("R", "").split(",");
-			if(elements[0].matches("[(][0-9]*[)]")){
+			String[] elements = computingLine.replace("GLZ", "").split(",");
+			/*if(elements[0].matches("[(][0-9]*[)]")){
 				int indirectRegister = this.Registers[this.Registers[Integer.parseInt(elements[0].replace("(", "").replace(")", ""))]];
 				if(indirectRegister < 0){
 					this.currentLine = this.labels.get(elements[1]);
@@ -280,6 +293,17 @@ public class Ram{
 					this.currentLine++;
 					return "Register " + elements[0] + " != 0" + ". Just go one line further";
 				}
+			}*/
+			int result = this.getElement(elements[0]);
+			this.lcmOrder = this.calculateLogarithmicCost(result);
+			this.lcmOrderTotal += this.lcmOrder;
+			if(result < 0){
+				this.currentLine = this.labels.get(elements[1]);
+				return "Register " + elements[0] + " == 0" + ". Go to line " + this.currentLine;
+			}
+			else{
+				this.currentLine++;
+				return "Register " + elements[0] + " != 0" + ". Just go one line further";
 			}
 		}
 		if(computingLine.matches("GZ(R[0-9]*|[(]R[0-9]*[)]),L[0-9]*")){
@@ -287,8 +311,8 @@ public class Ram{
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
 			this.ucmMemoryTotal++;
-			String[] elements = computingLine.replace("GZ", "").replace("R", "").split(",");
-			if(elements[0].matches("[(][0-9]*[)]")){
+			String[] elements = computingLine.replace("GZ", "").split(",");
+			/*if(elements[0].matches("[(][0-9]*[)]")){
 				int indirectRegister = this.Registers[this.Registers[Integer.parseInt(elements[0].replace("(", "").replace(")", ""))]];
 				if(indirectRegister == 0){
 					this.currentLine = this.labels.get(elements[1]);
@@ -308,6 +332,17 @@ public class Ram{
 					this.currentLine++;
 					return "Register " + elements[0] + " != 0" + ". Just go one line further";
 				}
+			}*/
+			int result = this.getElement(elements[0]);
+			this.lcmOrder = this.calculateLogarithmicCost(result);
+			this.lcmOrderTotal += this.lcmOrder;
+			if(result == 0){
+				this.currentLine = this.labels.get(elements[1]);
+				return "Register " + elements[0] + " == 0" + ". Go to line " + this.currentLine;
+			}
+			else{
+				this.currentLine++;
+				return "Register " + elements[0] + " != 0" + ". Just go one line further";
 			}
 		}
 		//if there is a GOTO just set the currentLine to the one which has the label
@@ -328,20 +363,30 @@ public class Ram{
 		if(half.matches("[(].*[)]")){
 			this.ucmMemory+=2;
 			this.ucmMemoryTotal+=2;
-			return this.Registers[this.Registers[Integer.parseInt(half.replace("(", "").replace(")", "").replace("R", ""))]];
+			int number = Integer.parseInt(half.replace("(", "").replace(")", "").replace("R", ""));
+			this.lcmOrder += (this.calculateLogarithmicCost(number + this.Registers[number] + this.Registers[this.Registers[number]]));
+			int result = this.Registers[this.Registers[number]];
+			return result;
 		}
 		//register
 		if(half.matches("R[0-9]*")){
 			this.ucmMemory++;
 			this.ucmMemoryTotal++;
-			return this.Registers[Integer.parseInt(half.replace("R", ""))];
+			int number = Integer.parseInt(half.replace("R", ""));
+			this.lcmOrder += this.calculateLogarithmicCost(number + this.Registers[number]);
+			int result = this.Registers[number];
+			return result;
 		}
 		//constant
-		if(half.matches("[0-9]*")){
-			return Integer.parseInt(half);
+		if(half.matches("[0-9]+")){
+			int number = Integer.parseInt(half);
+			this.lcmOrder += this.calculateLogarithmicCost(number);
+			return number;
 		}
 		//negative constant
-		if(half.matches("\\-[0-9]*")){
+		if(half.matches("\\-[0-9]+")){
+			int number = Integer.parseInt(half.replace("-", ""));
+			this.lcmOrder += this.calculateLogarithmicCost(number * -1);
 			return Integer.parseInt(half);
 		}
 		return 0;
@@ -365,19 +410,21 @@ public class Ram{
 	}
 	
 	//returns the cost of the current line in the logarithmic cost measure
-	int[] getCurrentLogarithmicCost(){
-		int[] toReturn = {this.lcmOrder, this.lcmMemory};
-		return toReturn;
+	int getCurrentLogarithmicCost(){
+		System.out.println((int)this.lcmOrder);
+		return (int)this.lcmOrder;
 	}
 	
 	//returns the total cost in the logarithmic cost measure
-	int[] getTotalLogarithmicCost(){
-		int[] toReturn = {this.lcmOrderTotal, this.lcmMemoryTotal};
-		return toReturn;
+	int getTotalLogarithmicCost(){
+		System.out.println((int)this.lcmOrderTotal);
+		return (int)this.lcmOrderTotal;
 	}
 	
 	//calcualtes the logarithm of a given register to base 2, by using two natural logarithm calculations
-	double calculateLogarithmicCost(int register){
-		return (Math.log1p(this.Registers[register])/Math.log1p(2));
+	double calculateLogarithmicCost(int value){
+		double cost = Math.log1p(value)/Math.log1p(2);
+		//System.out.println("LCM for " + value + ": " + cost);
+		return cost;
 	}
 }
