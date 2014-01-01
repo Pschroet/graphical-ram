@@ -85,11 +85,11 @@ public class Ram{
 	private void getLabels(){
 		for(int i = 0; i < this.lines.length; i++){
 			//if the current line has a label get the label and save it's position and compute the line
-			if(this.lines[i].matches("^[L]\\d+.*")){
+			if(this.lines[i].matches("^[Z]\\d+[:].*")){
 				String label = this.lines[i].split(" ")[0];
 				this.labels.put(label, i);
 				//put the rest back as the new line
-				this.lines[i] = this.lines[i].split("[L]\\d+")[1];
+				this.lines[i] = this.lines[i].split("[Z]\\d+[:] ")[1];
 			}
 		}
 	}
@@ -112,6 +112,9 @@ public class Ram{
 	
 	//compute one line of the ram and give the output
 	String computeLine(){
+		if(this.currentLine >= this.lines.length){
+			return "Error. End of program reached, but HALT is missing.";
+		}
 		this.ucmMemory = 0;
 		this.ucmOrder = 0;
 		this.lcmOrder = 0;
@@ -125,7 +128,7 @@ public class Ram{
 			this.currentLine++;
 			return "go one line further";
 		}
-		if(computingLine.matches("R[0-9]+:=((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|[0-9]+)((\\+|\\-|\\*|\\/)((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|([0-9]+)))?")){
+		if(computingLine.matches("((R[0-9])|[(]R[0-9][)])+:=((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|[0-9]+)((\\+|\\-|\\*|\\/)((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|([0-9]+)))?")){
 			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			String[] currentContent = computingLine.split(":=");
@@ -135,10 +138,19 @@ public class Ram{
 				return "Syntax not allowed: Left element of an assignment may not be a constant.";
 			}
 			else{
-				leftElement = Integer.parseInt(currentContent[0].replace("R", "").replace(" ", ""));
-				this.ucmMemory++;
-				this.ucmMemoryTotal++;
-				this.lcmOrder += this.calculateLogarithmicCost(leftElement);
+				if(currentContent[0].matches("R\\d+")){
+					leftElement = Integer.parseInt(currentContent[0].replace("R", "").replace(" ", ""));
+					this.ucmMemory++;
+					this.ucmMemoryTotal++;
+					this.lcmOrder += this.calculateLogarithmicCost(leftElement);
+				}
+				else{
+					leftElement = Integer.parseInt(currentContent[0].replace("(", "").replace(")", "").replace("R", "").replace(" ", ""));
+					this.ucmMemory++;
+					this.ucmMemoryTotal++;
+					this.lcmOrder += this.calculateLogarithmicCost(leftElement);
+					
+				}
 			}
 			//check the right part
 			String rightElement = currentContent[1];
