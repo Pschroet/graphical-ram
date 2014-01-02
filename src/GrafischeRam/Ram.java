@@ -85,18 +85,36 @@ public class Ram{
 	}
 	
 	//search for labels and save which line has which label
-	//space at the beginning are not allowed!
+	//spaces at the beginning are not allowed!
 	private void getLabels(){
 		for(int i = 0; i < this.lines.length; i++){
 			String label = this.lines[i].split(" ")[0];
 			this.labels.put(label.replace(":", "").trim(), i);
 			//put the rest back as the new line
-			String[] labelAndLine = this.lines[i].split("[Z]\\d+\\:");
-			if(labelAndLine.length > 1){
-				this.lines[i] = labelAndLine[1].trim();
+			if(label.matches("[Z]\\d+.*")){
+				String[] labelAndLine = this.lines[i].split("^[Z]\\d+\\:");
+				if(labelAndLine.length > 1){
+					this.lines[i] = labelAndLine[1].trim();
+				}
+				else{
+					this.lines[i] = "";
+				}
 			}
 			else{
-				this.lines[i] = "";
+				if(label.matches("[L]\\d+.*")){
+					String[] labelAndLine = this.lines[i].split("^[L]\\d+");
+					if(labelAndLine.length > 1){
+						this.lines[i] = labelAndLine[1].trim();
+					}
+					else{
+						this.lines[i] = "";
+					}
+				}
+				else{
+					if(label.matches("^[Z]\\d+\\s*[L]\\d+.*")){
+						System.out.println("ERROR: L labels and Z line marker together are not allowed.");
+					}
+				}
 			}
 		}
 	}
@@ -250,8 +268,7 @@ public class Ram{
 				return "Set Register " + leftElement + " to " + (rightLeftHalf - rightRightHalf);
 			}
 		}
-		//if(computingLine.matches("GGZ(R[0-9]*|[(]R[0-9]*[)]),L[0-9]*")){
-		if(computingLine.matches("GGZ(R[0-9]*|[(]R[0-9]*[)]),Z[0-9]*")){
+		if(computingLine.matches("GGZ(R[0-9]*|[(]R[0-9]*[)]),[Z|L][0-9]*")){
 			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
@@ -291,8 +308,7 @@ public class Ram{
 				return "Register " + elements[0] + " <= 0" + ". Just go one line further";
 			}
 		}
-		//if(computingLine.matches("GLZ(R[0-9]*|[(]R[0-9]*[)]),L[0-9]*")){
-		if(computingLine.matches("GLZ(R[0-9]*|[(]R[0-9]*[)]),Z[0-9]*")){
+		if(computingLine.matches("GLZ(R[0-9]*|[(]R[0-9]*[)]),[Z|L][0-9]*")){
 			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
@@ -331,8 +347,7 @@ public class Ram{
 				return "Register " + elements[0] + " > 0" + ". Just go one line further";
 			}
 		}
-		//if(computingLine.matches("GZ(R[0-9]*|[(]R[0-9]*[)]),L[0-9]*")){
-		if(computingLine.matches("GZ(R[0-9]*|[(]R[0-9]*[)]),Z[0-9]*")){
+		if(computingLine.matches("GZ(R[0-9]*|[(]R[0-9]*[)]),[Z|L][0-9]*")){
 			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
@@ -372,8 +387,7 @@ public class Ram{
 			}
 		}
 		//if there is a GOTO just set the currentLine to the one which has the label
-		//if(computingLine.matches("GOTO[L][0-9]+")){
-		if(computingLine.matches("GOTO[Z][0-9]+")){
+		if(computingLine.matches("GOTO[Z|L][0-9]+")){
 			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			String nextLabel = computingLine.replace("GOTO", "");
