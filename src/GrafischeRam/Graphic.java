@@ -53,7 +53,7 @@ public class Graphic implements ActionListener{
 	private JLabel lcmTotalLabel;
 	private JPanel progressPanel;		//contains the compute buttons
 	private JPanel buttonPanel;
-	private JButton reloadButton;
+	private JButton resetButton;
 	private JPanel currentLine;
 	private JButton computeLine;
 	private JButton computeProgram;
@@ -147,10 +147,10 @@ public class Graphic implements ActionListener{
 		this.costMeasure.add(this.lcmMemoryTotal);
 		
 		this.frame.add(this.costMeasure, BorderLayout.EAST);
-		//create three buttons, the first to reload the program, the second to compute one line, the third to compute all possible...
-		this.reloadButton = new JButton("Reload program");
-		this.reloadButton.addActionListener(this);
-		this.reloadButton.setActionCommand("reload");
+		//create three buttons, the first to reset the program, the second to compute one line, the third to compute all possible...
+		this.resetButton = new JButton("Reset program");
+		this.resetButton.addActionListener(this);
+		this.resetButton.setActionCommand("reset");
 		this.computeLine = new JButton("Compute Current Line");
 		this.computeLine.addActionListener(this);
 		this.computeLine.setActionCommand("computeLine");
@@ -161,7 +161,7 @@ public class Graphic implements ActionListener{
 		this.progressPanel = new JPanel(new BorderLayout());
 		//create a panel for the buttons, add them and then add the button panel to the progress panel
 		this.buttonPanel = new JPanel(new FlowLayout());
-		this.buttonPanel.add(this.reloadButton);
+		this.buttonPanel.add(this.resetButton);
 		this.buttonPanel.add(this.computeLine);
 		this.buttonPanel.add(this.computeProgram);
 		this.progressPanel.add(buttonPanel, BorderLayout.WEST);
@@ -316,7 +316,7 @@ public class Graphic implements ActionListener{
 		//put the program in the program area
 		this.programArea.setText(newProgram);
 		this.lastProgram = newProgram;
-		//save the registers for reloading
+		//save the registers for reseting
 		this.lastRegisters = new int[registers.length];
 		for(int i = 0; i < registers.length; i++){
 			this.lastRegisters[i] = Integer.parseInt(registers[i]);
@@ -378,8 +378,8 @@ public class Graphic implements ActionListener{
 		return registers;
 	}
 	
-	//reloads the program from the window and takes the content from the registers and gives it to the underlying ram
-	private void reloadProgram(){
+	//resets the program from the window and takes the content from the registers and gives it to the underlying ram
+	private void resetProgram(){
 		String newRegisters = "";
 		for(int i = 0; i < this.lastRegisters.length-1; i++){
 			newRegisters = newRegisters.concat(this.lastRegisters[i] + ";");
@@ -393,6 +393,10 @@ public class Graphic implements ActionListener{
 			inputToLoad[i+1] = newProgram[i];
 		}
 		this.loadNewProgram(inputToLoad);
+	}
+	
+	private void reloadProgram(){
+		
 	}
 
 	@Override
@@ -414,8 +418,8 @@ public class Graphic implements ActionListener{
 			case "newRegister":
 				this.addRegister("0");
 				break;
-			case "reload":
-				this.reloadProgram();
+			case "reset":
+				this.resetProgram();
 				this.updateRegister();
 				showCurrentLine();
 				break;
