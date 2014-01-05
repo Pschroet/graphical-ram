@@ -413,6 +413,15 @@ public class Graphic implements ActionListener{
 			this.output.setText("There are not enough registers");
 		}
 	}
+	
+	//checks all registers if there are changes and pushes the changes to the Ram
+	private void checkRegisters(){
+		for(int i = 0; i < this.registersFields.length; i++){
+			if(this.ram.Registers[i] != Integer.parseInt(this.registersFields[i].getText())){
+				this.ram.Registers[i] = Integer.parseInt(this.registersFields[i].getText());
+			}
+		}
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -440,10 +449,10 @@ public class Graphic implements ActionListener{
 				break;
 			case "computeLine":
 				this.computeLine.setEnabled(false);
+				checkRegisters();
 				//check if program has been changed and reload if necessary
 				if(!this.lastProgram.equals(this.programArea.getText())){
 					this.reloadProgram();
-					this.updateRegister();
 				}
 				this.output.setText((this.ram.computeLine()));
 				this.updateRegister();
