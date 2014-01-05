@@ -149,6 +149,7 @@ public class Graphic implements ActionListener{
 		this.frame.add(this.costMeasure, BorderLayout.EAST);
 		//create three buttons, the first to reset the program, the second to compute one line, the third to compute all possible...
 		this.resetButton = new JButton("Reset program");
+		this.resetButton.setEnabled(false);
 		this.resetButton.addActionListener(this);
 		this.resetButton.setActionCommand("reset");
 		this.computeLine = new JButton("Compute Current Line");
@@ -208,6 +209,9 @@ public class Graphic implements ActionListener{
 		//create a panel to show which line is currently worked on
 		if(this.currentLine != null){
 			this.currentLine.removeAll();
+		}
+		if(this.ram.currentLine == -1 && !this.programArea.getText().matches("")){
+			
 		}
 		this.currentLine = new JPanel();
 		this.currentLine.setLayout(new BoxLayout(this.currentLine, BoxLayout.PAGE_AXIS));
@@ -322,6 +326,7 @@ public class Graphic implements ActionListener{
 			this.lastRegisters[i] = Integer.parseInt(registers[i]);
 		}
 		this.showCurrentLine();
+		this.resetButton.setEnabled(true);
 	}
 	
 	private void saveProgram(){
@@ -396,7 +401,17 @@ public class Graphic implements ActionListener{
 	}
 	
 	private void reloadProgram(){
-		
+		try{
+			String newRegisters = this.registersFields[0].getText();
+			for(int i = 1; i < this.registersFields.length; i++){
+				newRegisters = newRegisters.concat(";" + this.registersFields[i].getText());
+			}
+			this.lastProgram = this.programArea.getText();
+			this.ram.load(this.programArea.getText().replaceAll("(?<!\r)\n", System.getProperty("line.separator")), newRegisters);
+		}
+		catch(ArrayIndexOutOfBoundsException e){
+			this.output.setText("There are not enough registers");
+		}
 	}
 
 	@Override
