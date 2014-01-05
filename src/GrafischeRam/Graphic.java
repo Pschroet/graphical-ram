@@ -58,6 +58,8 @@ public class Graphic implements ActionListener{
 	private JButton computeLine;
 	private JButton computeProgram;
 	private JTextField output;
+	private String lastProgram;
+	private int[] lastRegisters;
 	final JFileChooser fc = new JFileChooser();
 	
 	public Graphic(Ram ram){
@@ -70,11 +72,11 @@ public class Graphic implements ActionListener{
 		//create the menu bar and it's elements
 		this.menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
-		this.loadProgram = new JMenuItem("Load program");
+		this.loadProgram = new JMenuItem("Load Program");
 		this.loadProgram.setActionCommand("load");
 		this.loadProgram.addActionListener(this);
 		fileMenu.add(loadProgram);
-		this.saveProgram = new JMenuItem("Save program");
+		this.saveProgram = new JMenuItem("Save Program");
 		this.saveProgram.setActionCommand("save");
 		this.saveProgram.addActionListener(this);
 		fileMenu.add(saveProgram);
@@ -146,13 +148,13 @@ public class Graphic implements ActionListener{
 		
 		this.frame.add(this.costMeasure, BorderLayout.EAST);
 		//create three buttons, the first to reload the program, the second to compute one line, the third to compute all possible...
-		this.reloadButton = new JButton("(Re)Load program");
+		this.reloadButton = new JButton("Reload program");
 		this.reloadButton.addActionListener(this);
 		this.reloadButton.setActionCommand("reload");
-		this.computeLine = new JButton("Compute current line");
+		this.computeLine = new JButton("Compute Current Line");
 		this.computeLine.addActionListener(this);
 		this.computeLine.setActionCommand("computeLine");
-		this.computeProgram = new JButton("Compute program");
+		this.computeProgram = new JButton("Compute Program");
 		this.computeProgram.addActionListener(this);
 		this.computeProgram.setActionCommand("computeProgram");
 		//and add both to the progressPanel, which is added to the main frame
@@ -173,6 +175,8 @@ public class Graphic implements ActionListener{
 		//show the  finished window
 		this.frame.setVisible(true);
 		this.frame.validate();
+		this.lastProgram = this.ram.program;
+		this.lastRegisters = new int[0];
 	}
 	
 	//updates the registers shown by the window
@@ -311,6 +315,12 @@ public class Graphic implements ActionListener{
 		this.ram.load(newProgram.replaceAll("(?<!\r)\n", System.getProperty("line.separator")), program[0]);
 		//put the program in the program area
 		this.programArea.setText(newProgram);
+		this.lastProgram = newProgram;
+		//save the registers for reloading
+		this.lastRegisters = new int[registers.length];
+		for(int i = 0; i < registers.length; i++){
+			this.lastRegisters[i] = Integer.parseInt(registers[i]);
+		}
 		this.showCurrentLine();
 	}
 	
@@ -370,7 +380,11 @@ public class Graphic implements ActionListener{
 	
 	//reloads the program from the window and takes the content from the registers and gives it to the underlying ram
 	private void reloadProgram(){
-		String newRegisters = getRegisters();
+		String newRegisters = "";
+		for(int i = 0; i < this.lastRegisters.length-1; i++){
+			newRegisters = newRegisters.concat(this.lastRegisters[i] + ";");
+		}
+		newRegisters = newRegisters.concat(String.valueOf(this.lastRegisters[this.lastRegisters.length-1]));
 		//combine the register string and the program to an array and give it to the ram by passing it to loadNewProgram
 		String[] newProgram = this.programArea.getText().split(System.getProperty("line.separator"));
 		String[] inputToLoad = new String[newProgram.length + 1];
@@ -403,9 +417,15 @@ public class Graphic implements ActionListener{
 			case "reload":
 				this.reloadProgram();
 				this.updateRegister();
+				showCurrentLine();
 				break;
 			case "computeLine":
 				this.computeLine.setEnabled(false);
+				//check if program has been changed and reload if necessary
+				if(!this.lastProgram.equals(this.programArea.getText())){
+					this.reloadProgram();
+					this.updateRegister();
+				}
 				this.output.setText((this.ram.computeLine()));
 				this.updateRegister();
 				showCurrentLine();
