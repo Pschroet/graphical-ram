@@ -410,7 +410,6 @@ public class Graphic implements ActionListener{
 				newRegisters = newRegisters.concat(";" + this.registersFields[i].getText());
 			}
 			String newProgram = this.programArea.getText().replaceAll("(?<!\r)\n", System.getProperty("line.separator"));
-			System.out.println(newProgram);
 			this.ram.load(newProgram, newRegisters);
 		}
 		catch(ArrayIndexOutOfBoundsException e){
@@ -461,7 +460,6 @@ public class Graphic implements ActionListener{
 				this.output.setText((this.ram.computeLine()));
 				this.updateRegister();
 				this.lastProgram = this.programArea.getText();
-				//System.out.println(this.ram.lines[this.ram.currentLine]);
 				showCurrentLine();
 				//get the unified costs of the current line and display them
 				int[] unifiedCost = this.ram.getCurrentUnifiedCost();

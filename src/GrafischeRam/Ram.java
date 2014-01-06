@@ -89,31 +89,14 @@ public class Ram{
 	private void getLabels(){
 		for(int i = 0; i < this.lines.length; i++){
 			String label = this.lines[i].split(" ")[0];
-			this.labels.put(label.replace(":", "").trim(), i);
-			//put the rest back as the new line
-			if(label.matches("[Z]\\d+.*")){
-				String[] labelAndLine = this.lines[i].split("^[Z]\\d+\\:");
+			if(label.matches("[L]\\d+")){
+				this.labels.put(label, i);
+				String[] labelAndLine = this.lines[i].split("^[L]\\d+");
 				if(labelAndLine.length > 1){
 					this.lines[i] = labelAndLine[1].trim();
 				}
 				else{
 					this.lines[i] = "";
-				}
-			}
-			else{
-				if(label.matches("[L]\\d+.*")){
-					String[] labelAndLine = this.lines[i].split("^[L]\\d+");
-					if(labelAndLine.length > 1){
-						this.lines[i] = labelAndLine[1].trim();
-					}
-					else{
-						this.lines[i] = "";
-					}
-				}
-				else{
-					if(label.matches("^[Z]\\d+\\s*[L]\\d+.*")){
-						System.out.println("ERROR: L labels and Z line marker together are not allowed.");
-					}
 				}
 			}
 		}
@@ -462,7 +445,7 @@ public class Ram{
 	
 	//calcualtes the logarithm of a given register to base 2, by using two natural logarithm calculations
 	double calculateLogarithmicCost(int value){
-		double cost = Math.log1p(value)/Math.log1p(2);
+		double cost = Math.log1p(Math.abs(value))/Math.log1p(2);
 		return cost;
 	}
 }
