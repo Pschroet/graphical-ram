@@ -323,7 +323,7 @@ public class Graphic implements ActionListener{
 		//save the registers for reseting
 		this.lastRegisters = new int[registers.length];
 		for(int i = 0; i < registers.length; i++){
-			this.lastRegisters[i] = Integer.parseInt(registers[i]);
+			this.lastRegisters[i] = Integer.parseInt(registers[i].trim());
 		}
 		this.showCurrentLine();
 		this.resetButton.setEnabled(true);
