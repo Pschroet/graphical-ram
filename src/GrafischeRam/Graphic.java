@@ -60,6 +60,7 @@ public class Graphic implements ActionListener{
 	private JTextField output;
 	private String lastProgram;
 	private int[] lastRegisters;
+	private String savedProgram;
 	final JFileChooser fc = new JFileChooser();
 	
 	public Graphic(Ram ram){
@@ -176,8 +177,9 @@ public class Graphic implements ActionListener{
 		//show the  finished window
 		this.frame.setVisible(true);
 		this.frame.validate();
-		this.lastProgram = this.ram.program;
+		this.savedProgram = this.ram.program;
 		this.lastRegisters = new int[0];
+		this.lastProgram = "";
 	}
 	
 	//updates the registers shown by the window
@@ -268,7 +270,7 @@ public class Graphic implements ActionListener{
 	}
 	
 	//load a new program given (usually by chooseProgramFile), gives it to the Ram and puts the text into the program area
-	private void loadNewProgram(String[] program){
+	private void loadNewProgram(String[] program, boolean remember){
 		//create the new program by concating the lines of the program and ignoring the first line 
 		String newProgram = "";
 		for(int i = 1; i < program.length; i++){
@@ -319,7 +321,7 @@ public class Graphic implements ActionListener{
 		this.ram.load(newProgram.replaceAll("(?<!\r)\n", System.getProperty("line.separator")), program[0]);
 		//put the program in the program area
 		this.programArea.setText(newProgram);
-		this.lastProgram = newProgram;
+		if(remember) this.savedProgram = newProgram;
 		//save the registers for reseting
 		this.lastRegisters = new int[registers.length];
 		for(int i = 0; i < registers.length; i++){
@@ -391,13 +393,14 @@ public class Graphic implements ActionListener{
 		}
 		newRegisters = newRegisters.concat(String.valueOf(this.lastRegisters[this.lastRegisters.length-1]));
 		//combine the register string and the program to an array and give it to the ram by passing it to loadNewProgram
-		String[] newProgram = this.programArea.getText().split(System.getProperty("line.separator"));
+		//String[] newProgram = this.programArea.getText().split(System.getProperty("line.separator"));
+		String[] newProgram = this.savedProgram.split(System.getProperty("line.separator"));
 		String[] inputToLoad = new String[newProgram.length + 1];
 		inputToLoad[0] = newRegisters;
 		for(int i = 0; i < newProgram.length; i++){
 			inputToLoad[i+1] = newProgram[i];
 		}
-		this.loadNewProgram(inputToLoad);
+		this.loadNewProgram(inputToLoad, false);
 	}
 	
 	private void reloadProgram(){
@@ -406,8 +409,9 @@ public class Graphic implements ActionListener{
 			for(int i = 1; i < this.registersFields.length; i++){
 				newRegisters = newRegisters.concat(";" + this.registersFields[i].getText());
 			}
-			this.lastProgram = this.programArea.getText();
-			this.ram.load(this.programArea.getText().replaceAll("(?<!\r)\n", System.getProperty("line.separator")), newRegisters);
+			String newProgram = this.programArea.getText().replaceAll("(?<!\r)\n", System.getProperty("line.separator"));
+			System.out.println(newProgram);
+			this.ram.load(newProgram, newRegisters);
 		}
 		catch(ArrayIndexOutOfBoundsException e){
 			this.output.setText("There are not enough registers");
@@ -429,7 +433,7 @@ public class Graphic implements ActionListener{
 			case "load":
 				String[] newProgramLines = chooseProgramFile();
 				if(newProgramLines != null){
-					loadNewProgram(newProgramLines);
+					loadNewProgram(newProgramLines, true);
 				}
 				this.output.setText("");
 				break;
@@ -456,6 +460,8 @@ public class Graphic implements ActionListener{
 				}
 				this.output.setText((this.ram.computeLine()));
 				this.updateRegister();
+				this.lastProgram = this.programArea.getText();
+				//System.out.println(this.ram.lines[this.ram.currentLine]);
 				showCurrentLine();
 				//get the unified costs of the current line and display them
 				int[] unifiedCost = this.ram.getCurrentUnifiedCost();
