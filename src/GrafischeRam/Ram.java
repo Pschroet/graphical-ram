@@ -251,7 +251,7 @@ public class Ram{
 				return "Set Register " + leftElement + " to " + (rightLeftHalf - rightRightHalf);
 			}
 		}
-		if(computingLine.matches("GGZ(R[0-9]*|[(]R[0-9]*[)]),[Z|L][0-9]*")){
+		if(computingLine.matches("GGZ(R[0-9]*|[(]R[0-9]*[)]),[L][0-9]*")){
 			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
@@ -291,7 +291,7 @@ public class Ram{
 				return "Register " + elements[0] + " <= 0" + ". Just go one line further";
 			}
 		}
-		if(computingLine.matches("GLZ(R[0-9]*|[(]R[0-9]*[)]),[Z|L][0-9]*")){
+		if(computingLine.matches("GLZ(R[0-9]*|[(]R[0-9]*[)]),[L][0-9]*")){
 			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
@@ -330,7 +330,7 @@ public class Ram{
 				return "Register " + elements[0] + " > 0" + ". Just go one line further";
 			}
 		}
-		if(computingLine.matches("GZ(R[0-9]*|[(]R[0-9]*[)]),[Z|L][0-9]*")){
+		if(computingLine.matches("GZ(R[0-9]*|[(]R[0-9]*[)]),[L][0-9]*")){
 			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
@@ -370,7 +370,7 @@ public class Ram{
 			}
 		}
 		//if there is a GOTO just set the currentLine to the one which has the label
-		if(computingLine.matches("GOTO[Z|L][0-9]+")){
+		if(computingLine.matches("GOTO[L][0-9]+")){
 			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			String nextLabel = computingLine.replace("GOTO", "");
