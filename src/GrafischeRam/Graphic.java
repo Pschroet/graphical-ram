@@ -373,6 +373,7 @@ public class Graphic implements ActionListener{
 		}
 		this.registerPanel.add(this.registersPanel, BorderLayout.CENTER);
 		this.nrRegisters++;
+		this.ram.Registers = new int[this.nrRegisters];
 		this.frame.revalidate();
 	}
 	
