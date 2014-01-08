@@ -141,6 +141,7 @@ public class Ram{
 			this.currentLine++;
 			return "go one line further";
 		}
+		System.out.println("computingLine: " + computingLine);
 		if(computingLine.matches("((R[0-9]+)|([(]R[0-9]+[)])):=((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|[0-9]+)((\\+|\\-|\\*|\\/)((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|([0-9]+)))?")){
 			this.ucmOrder++;
 			this.ucmOrderTotal++;
@@ -173,6 +174,7 @@ public class Ram{
 			}
 			//check the right part
 			String rightElement = currentContent[1];
+			System.out.println("rightElement: " + rightElement);
 			//if it is a constant
 			if(rightElement.matches("(\\-)?[0-9]+")){
 				//go to next line
@@ -182,6 +184,22 @@ public class Ram{
 				this.lcmOrder += this.calculateLogarithmicCost(number);
 				this.lcmOrderTotal += this.lcmOrder;
 				return "Set Register " + leftElement + " to " + Integer.parseInt(rightElement);
+			}
+			//if the right element is just a register
+			if(rightElement.matches("R[0-9]+")){
+				int result = this.getElement(rightElement);
+				this.Registers[leftElement] = result;
+				//go to next line
+				this.currentLine++;
+				return "Set Register " + leftElement + " to " + result;
+			}
+			//if the right element is an indirect register
+			if(rightElement.matches("[(]R[0-9]+[)]")){
+				int result = this.getElement(rightElement);
+				this.Registers[leftElement] = result;
+				//go to next line
+				this.currentLine++;
+				return "Set Register " + leftElement + " to " + result;
 			}
 			//TODO: define more
 			if(currentContent[1].matches(".*\\+.*")){
