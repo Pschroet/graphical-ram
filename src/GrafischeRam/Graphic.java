@@ -405,17 +405,19 @@ public class Graphic implements ActionListener{
 	}
 	
 	private void reloadProgram(){
+		String newRegisters = this.registersFields[0].getText();
 		try{
-			String newRegisters = this.registersFields[0].getText();
 			for(int i = 1; i < this.registersFields.length; i++){
 				newRegisters = newRegisters.concat(";" + this.registersFields[i].getText());
 			}
-			String newProgram = this.programArea.getText().replaceAll("(?<!\r)\n", System.getProperty("line.separator"));
-			this.ram.load(newProgram, newRegisters);
 		}
 		catch(ArrayIndexOutOfBoundsException e){
-			this.output.setText("There are not enough registers");
+			String newProgram = this.programArea.getText().replaceAll("(?<!\r)\n", System.getProperty("line.separator"));
+			this.ram.load(newProgram, newRegisters);
+			throw e;
 		}
+		String newProgram = this.programArea.getText().replaceAll("(?<!\r)\n", System.getProperty("line.separator"));
+		this.ram.load(newProgram, newRegisters);
 	}
 	
 	//checks all registers if there are changes and pushes the changes to the Ram
@@ -454,24 +456,29 @@ public class Graphic implements ActionListener{
 			case "computeLine":
 				this.computeLine.setEnabled(false);
 				checkRegisters();
-				//check if program has been changed and reload if necessary
-				if(!this.lastProgram.equals(this.programArea.getText())){
-					this.reloadProgram();
+				try{
+					//check if program has been changed and reload if necessary
+					if(!this.lastProgram.equals(this.programArea.getText())){
+						this.reloadProgram();
+					}
+					this.output.setText((this.ram.computeLine()));
+					this.updateRegister();
+					this.lastProgram = this.programArea.getText();
+					showCurrentLine();
+					//get the unified costs of the current line and display them
+					int[] unifiedCost = this.ram.getCurrentUnifiedCost();
+					this.ucmOrder.setText(String.valueOf(unifiedCost[0]));
+					this.ucmMemory.setText(String.valueOf(unifiedCost[1]));
+					this.lcmOrder.setText(String.valueOf(this.ram.getCurrentLogarithmicCost()));
+					//get the total unified costs and display them
+					int[] unifiedTotalCost = this.ram.getTotalUnifiedCost();
+					this.ucmOrderTotal.setText(String.valueOf(unifiedTotalCost[0]));
+					this.ucmMemoryTotal.setText(String.valueOf(unifiedTotalCost[1]));
+					this.lcmOrderTotal.setText(String.valueOf(this.ram.getTotalLogarithmicCost()));
 				}
-				this.output.setText((this.ram.computeLine()));
-				this.updateRegister();
-				this.lastProgram = this.programArea.getText();
-				showCurrentLine();
-				//get the unified costs of the current line and display them
-				int[] unifiedCost = this.ram.getCurrentUnifiedCost();
-				this.ucmOrder.setText(String.valueOf(unifiedCost[0]));
-				this.ucmMemory.setText(String.valueOf(unifiedCost[1]));
-				this.lcmOrder.setText(String.valueOf(this.ram.getCurrentLogarithmicCost()));
-				//get the total unified costs and display them
-				int[] unifiedTotalCost = this.ram.getTotalUnifiedCost();
-				this.ucmOrderTotal.setText(String.valueOf(unifiedTotalCost[0]));
-				this.ucmMemoryTotal.setText(String.valueOf(unifiedTotalCost[1]));
-				this.lcmOrderTotal.setText(String.valueOf(this.ram.getTotalLogarithmicCost()));
+				catch(ArrayIndexOutOfBoundsException exception){
+					this.output.setText("At least one register in line " + (this.ram.currentLine + 1)  + " does not exist");
+				}
 				this.computeLine.setEnabled(true);
 				break;
 			case "computeProgram":

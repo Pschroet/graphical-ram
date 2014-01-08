@@ -20,7 +20,7 @@ public class Ram{
 		this.Registers = new int[0];
 		this.program = "";
 		this.lines = new String[0];
-		this.currentLine = -1;
+		this.currentLine = 0;
 		this.ucmOrder = 0;
 		this.ucmOrderTotal = 0;
 		this.ucmMemory = 0;
@@ -106,6 +106,9 @@ public class Ram{
 	private void setProgramAndRegisters(String p, String r){
 		this.program = p;
 		this.lines = partProgrammLines(this.program);
+		/*for(int i = 0; i < this.lines.length; i++){
+			System.out.println(i + ": " + this.lines[i]);
+		}*/
 		this.labels = new Hashtable<String, Integer>();
 		this.currentLine = 0;
 		this.getLabels();
@@ -143,7 +146,7 @@ public class Ram{
 			this.ucmOrderTotal++;
 			String[] currentContent = computingLine.split(":=");
 			//check the left part
-			int leftElement;
+			int leftElement = 0;
 			if(currentContent[0].trim().matches("(\\-)?[0-9]+")){
 				return "Syntax not allowed: Left element of an assignment may not be a constant.";
 			}
@@ -155,13 +158,18 @@ public class Ram{
 					this.lcmOrder += this.calculateLogarithmicCost(leftElement);
 				}
 				else{
-					leftElement = this.Registers[Integer.parseInt(currentContent[0].replace("(", "").replace(")", "").replace("R", "").replace(" ", ""))];
-					this.ucmMemory++;
-					this.ucmMemoryTotal++;
-					this.lcmOrder += this.calculateLogarithmicCost(leftElement);
-					this.lcmOrder += this.calculateLogarithmicCost(this.Registers[leftElement]);
+					if(currentContent[0].matches("^[(]R\\d+[)]")){
+						leftElement = this.Registers[Integer.parseInt(currentContent[0].replace("(", "").replace(")", "").replace("R", "").replace(" ", ""))];
+						this.ucmMemory++;
+						this.ucmMemoryTotal++;
+						this.lcmOrder += this.calculateLogarithmicCost(leftElement);
+						this.lcmOrder += this.calculateLogarithmicCost(this.Registers[leftElement]);
+					}
 					
 				}
+			}
+			if(leftElement < 0){
+				return "Registers cannot be negative";
 			}
 			//check the right part
 			String rightElement = currentContent[1];
