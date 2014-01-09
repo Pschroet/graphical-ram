@@ -100,8 +100,9 @@ public class Graphic implements ActionListener{
 		registersFields = new JTextField[ram.Registers.length];
 		this.nrRegisters = ram.Registers.length;
 		for(int i = 0; i < ram.Registers.length; i++){
-			registersFields[i] = new JTextField(5);
-			registersFields[i].setText(String.valueOf(ram.Registers[i]));
+			this.registersFields[i] = new JTextField(5);
+			this.registersFields[i].setText(String.valueOf(ram.Registers[i]));
+			this.registersFields[i].setToolTipText("R" + i);
 			this.registersPanel.add(registersFields[i]);
 		}
 		this.registerPanel.add(registersPanel, BorderLayout.CENTER);
@@ -178,6 +179,9 @@ public class Graphic implements ActionListener{
 		this.frame.setVisible(true);
 		this.frame.validate();
 		this.savedProgram = this.ram.program;
+		if(!this.ram.program.equals("")){
+			this.programArea.setText(this.ram.program);
+		}
 		this.lastRegisters = new int[0];
 		this.lastProgram = "";
 	}
@@ -194,6 +198,7 @@ public class Graphic implements ActionListener{
 		//create a text field for each register
 		for(int i = 0; i < this.nrRegisters; i++){
 			this.registersFields[i] = new JTextField(5);
+			this.registersFields[i].setToolTipText("R" + i);
 			this.registersPanel.add(registersFields[i]);
 		}
 		//fill the registers with values, but only those used by the ram
@@ -290,6 +295,7 @@ public class Graphic implements ActionListener{
 			for(int i = 0; i < registers.length; i++){
 				registersFields[i] = new JTextField(5);
 				registersFields[i].setText(String.valueOf(registers[i]));
+				registersFields[i].setToolTipText("R" + i);
 				this.registersPanel.add(registersFields[i]);
 			}
 			//create a new set of registers with the correct size
@@ -370,6 +376,7 @@ public class Graphic implements ActionListener{
 		//add the registers to the frame
 		for(int i = 0; i < this.registersFields.length; i++){
 			this.registersPanel.add(this.registersFields[i]);
+			registersFields[i].setToolTipText("R" + i);
 		}
 		this.registerPanel.add(this.registersPanel, BorderLayout.CENTER);
 		this.nrRegisters++;
