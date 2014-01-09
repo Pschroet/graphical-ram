@@ -141,7 +141,7 @@ public class Ram{
 			this.currentLine++;
 			return "go one line further";
 		}
-		System.out.println("computingLine: " + computingLine);
+		//System.out.println("computingLine: " + computingLine);
 		if(computingLine.matches("((R[0-9]+)|([(]R[0-9]+[)])):=((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|[0-9]+)((\\+|\\-|\\*|\\/)((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|([0-9]+)))?")){
 			this.ucmOrder++;
 			this.ucmOrderTotal++;
@@ -174,7 +174,6 @@ public class Ram{
 			}
 			//check the right part
 			String rightElement = currentContent[1];
-			System.out.println("rightElement: " + rightElement);
 			//if it is a constant
 			if(rightElement.matches("(\\-)?[0-9]+")){
 				//go to next line
