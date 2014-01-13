@@ -273,7 +273,7 @@ public class Ram{
 				return "Set Register " + leftElement + " to " + (rightLeftHalf - rightRightHalf) + ".";
 			}
 		}
-		if(computingLine.matches("GGZ(R[0-9]*|[(]R[0-9]*[)]),[L][0-9]*")){
+		if(computingLine.matches("GGZ(R[0-9]+|[(]R[0-9]+[)]|[0-9]+),[L][0-9]+")){
 			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
@@ -284,14 +284,14 @@ public class Ram{
 			this.lcmOrderTotal += this.lcmOrder;
 			if(result > 0){
 				this.currentLine = this.labels.get(elements[1]);
-				return "Register " + elements[0] + " > 0" + ". Go to line " + this.currentLine + ".";
+				return elements[0] + " > 0" + ". Go to line " + this.currentLine + ".";
 			}
 			else{
 				this.currentLine++;
-				return "Register " + elements[0] + " <= 0" + ". Just going one line further.";
+				return elements[0] + " <= 0" + ". Just going one line further.";
 			}
 		}
-		if(computingLine.matches("GLZ(R[0-9]*|[(]R[0-9]*[)]),[L][0-9]*")){
+		if(computingLine.matches("GLZ(R[0-9]+|[(]R[0-9]+[)]|[0-9]+),[L][0-9]+")){
 			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
@@ -302,14 +302,14 @@ public class Ram{
 			this.lcmOrderTotal += this.lcmOrder;
 			if(result < 0){
 				this.currentLine = this.labels.get(elements[1]);
-				return "Register " + elements[0] + " < 0" + ". Go to line " + this.currentLine + ".";
+				return elements[0] + " < 0" + ". Go to line " + this.currentLine + ".";
 			}
 			else{
 				this.currentLine++;
-				return "Register " + elements[0] + " > 0" + ". Just going one line further.";
+				return elements[0] + " > 0" + ". Just going one line further.";
 			}
 		}
-		if(computingLine.matches("GZ(R[0-9]*|[(]R[0-9]*[)]),[L][0-9]*")){
+		if(computingLine.matches("GZ(R[0-9]+|[(]R[0-9]+[)]|[0-9]+),[L][0-9]+")){
 			this.ucmOrder++;
 			this.ucmOrderTotal++;
 			this.ucmMemory++;
@@ -320,11 +320,11 @@ public class Ram{
 			this.lcmOrderTotal += this.lcmOrder;
 			if(result == 0){
 				this.currentLine = this.labels.get(elements[1]);
-				return "Register " + elements[0] + " == 0" + ". Go to line " + this.currentLine + ".";
+				return elements[0] + " == 0" + ". Go to line " + this.currentLine + ".";
 			}
 			else{
 				this.currentLine++;
-				return "Register " + elements[0] + " != 0" + ". Just going one line further.";
+				return elements[0] + " != 0" + ". Just going one line further.";
 			}
 		}
 		//if there is a GOTO just set the currentLine to the one which has the label
@@ -351,7 +351,7 @@ public class Ram{
 			return result;
 		}
 		//register
-		if(half.matches("R[0-9]*")){
+		if(half.matches("R[0-9]+")){
 			this.ucmMemory++;
 			this.ucmMemoryTotal++;
 			int number = Integer.parseInt(half.replace("R", ""));

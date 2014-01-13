@@ -349,4 +349,20 @@ public class RamTest{
 		}
 		System.out.println(run + "\n---------------------------------------------------------------------");
 	}
+	
+	@Test
+	public void test22(){
+		numberTests++;
+		System.out.println(numberTests + ". test");
+		String program = "L1 R1 := (R0) - 1" + System.getProperty("line.separator") + "GZ 0, L2" + System.getProperty("line.separator") + "GOTO L1" + System.getProperty("line.separator") + "L2 HALT";
+		System.out.println(program);
+		String register = "1;5";
+		Ram ram = new Ram(program, register);
+		String run = ram.computeLine();
+		while(!run.matches("No possiblity to compute further.*") && !run.matches("End of program reached.*") && !run.matches("Syntax not allowed.*")){
+			System.out.println(run);
+			run = ram.computeLine();
+		}
+		System.out.println(run + "\n---------------------------------------------------------------------");
+	}
 }
