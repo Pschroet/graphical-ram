@@ -306,7 +306,7 @@ public class Ram{
 			}
 			else{
 				this.currentLine++;
-				return "Register " + elements[0] + " > 0" + ". Just going one line further";
+				return "Register " + elements[0] + " > 0" + ". Just going one line further.";
 			}
 		}
 		if(computingLine.matches("GZ(R[0-9]*|[(]R[0-9]*[)]),[L][0-9]*")){
@@ -324,7 +324,7 @@ public class Ram{
 			}
 			else{
 				this.currentLine++;
-				return "Register " + elements[0] + " != 0" + ". Just going one line further";
+				return "Register " + elements[0] + " != 0" + ". Just going one line further.";
 			}
 		}
 		//if there is a GOTO just set the currentLine to the one which has the label
@@ -334,7 +334,7 @@ public class Ram{
 			String nextLabel = computingLine.replace("GOTO", "");
 			int nextLine = this.labels.get(nextLabel);
 			this.currentLine = nextLine;
-			return "Going to label " + nextLabel + " in line " + (nextLine + 1);
+			return "Going to label " + nextLabel + " in line " + (nextLine + 1) + ".";
 		}
 		return "No possiblity to compute further. Is the syntax correct?";
 	}
