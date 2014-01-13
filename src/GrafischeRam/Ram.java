@@ -134,12 +134,12 @@ public class Ram{
 		//System.out.println("computing: " + computingLine);
 		//if a HALT comes, end the program
 		if(computingLine.matches("HALT")){
-			return "End of program reached";
+			return "End of program reached.";
 		}
 		//if the current line is empty or contains only white spaces
 		if(computingLine.matches("") || computingLine.matches("\\s*")){
 			this.currentLine++;
-			return "go one line further";
+			return "Going one line further.";
 		}
 		//System.out.println("computingLine: " + computingLine);
 		if(computingLine.matches("((R[0-9]+)|([(]R[0-9]+[)])):=((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|[0-9]+)((\\+|\\-|\\*|\\/)((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|([0-9]+)))?")){
@@ -169,9 +169,6 @@ public class Ram{
 					
 				}
 			}
-			if(leftElement < 0){
-				return "Registers cannot be negative";
-			}
 			//check the right part
 			String rightElement = currentContent[1];
 			//if it is a constant
@@ -182,7 +179,7 @@ public class Ram{
 				this.Registers[leftElement] = number;
 				this.lcmOrder += this.calculateLogarithmicCost(number);
 				this.lcmOrderTotal += this.lcmOrder;
-				return "Set Register " + leftElement + " to " + Integer.parseInt(rightElement);
+				return "Set Register " + leftElement + " to " + Integer.parseInt(rightElement) + ".";
 			}
 			//if the right element is just a register
 			if(rightElement.matches("R[0-9]+")){
@@ -190,7 +187,7 @@ public class Ram{
 				this.Registers[leftElement] = result;
 				//go to next line
 				this.currentLine++;
-				return "Set Register " + leftElement + " to " + result;
+				return "Set Register " + leftElement + " to " + result + ".";
 			}
 			//if the right element is an indirect register
 			if(rightElement.matches("[(]R[0-9]+[)]")){
@@ -198,7 +195,7 @@ public class Ram{
 				this.Registers[leftElement] = result;
 				//go to next line
 				this.currentLine++;
-				return "Set Register " + leftElement + " to " + result;
+				return "Set Register " + leftElement + " to " + result + ".";
 			}
 			//TODO: define more
 			if(currentContent[1].matches(".*\\+.*")){
@@ -210,7 +207,7 @@ public class Ram{
 				//go to next line
 				this.currentLine++;
 				this.Registers[leftElement] = rightLeftHalf + rightRightHalf;
-				return "Set Register " + leftElement + " to " + (rightLeftHalf + rightRightHalf);
+				return "Set Register " + leftElement + " to " + (rightLeftHalf + rightRightHalf) + ".";
 			}
 			if(currentContent[1].matches(".*\\*.*")){
 				String[] rightHalfs = currentContent[1].split("\\*");
@@ -224,7 +221,7 @@ public class Ram{
 				this.currentLine++;
 				this.Registers[leftElement] = rightLeftHalf * rightRightHalf;
 				this.lcmOrderTotal += this.lcmOrder;
-				return "Set Register " + leftElement + " to " + (rightLeftHalf * rightRightHalf);
+				return "Set Register " + leftElement + " to " + (rightLeftHalf * rightRightHalf) + ".";
 				
 			}
 			if(currentContent[1].matches(".*/.*")){
@@ -239,7 +236,7 @@ public class Ram{
 				this.currentLine++;
 				this.Registers[leftElement] = rightLeftHalf / rightRightHalf;
 				this.lcmOrderTotal += this.lcmOrder;
-				return "Set Register " + leftElement + " to " + (rightLeftHalf / rightRightHalf);
+				return "Set Register " + leftElement + " to " + (rightLeftHalf / rightRightHalf) + ".";
 			}
 			if(currentContent[1].matches(".*\\-.*")){
 				//splits the assignment using the minuses, i. e. that if there are negative values their minuses will be erased; this case is handled, see below
@@ -273,7 +270,7 @@ public class Ram{
 				this.currentLine++;
 				this.Registers[leftElement] = rightLeftHalf - rightRightHalf;
 				this.lcmOrderTotal += this.lcmOrder;
-				return "Set Register " + leftElement + " to " + (rightLeftHalf - rightRightHalf);
+				return "Set Register " + leftElement + " to " + (rightLeftHalf - rightRightHalf) + ".";
 			}
 		}
 		if(computingLine.matches("GGZ(R[0-9]*|[(]R[0-9]*[)]),[L][0-9]*")){
@@ -282,38 +279,16 @@ public class Ram{
 			this.ucmMemory++;
 			this.ucmMemoryTotal++;
 			String[] elements = computingLine.replace("GGZ", "").split(",");
-			/*if(elements[0].matches("[(][0-9]*[)]")){
-				//int indirectRegister = this.Registers[this.Registers[Integer.parseInt(elements[0].replace("(", "").replace(")", ""))]];
-				int indirectRegister = this.getElement(elements[0]);
-				if(indirectRegister > 0){
-					this.currentLine = this.labels.get(elements[1]);
-					return "Register " + indirectRegister + " == 0" + ". Go to line " + this.currentLine;
-				}
-				else{
-					this.currentLine++;
-					return "Register " + indirectRegister + " != 0" + ". Just go one line further";
-				}
-			}
-			else{
-				if(this.Registers[Integer.parseInt(elements[0])] > 0){
-					this.currentLine = this.labels.get(elements[1]);
-					return "Register " + elements[0] + " > 0" + ". Go to line " + this.currentLine;
-				}
-				else{
-					this.currentLine++;
-					return "Register " + elements[0] + " <= 0" + ". Just go one line further";
-				}
-			}*/
 			int result = this.getElement(elements[0]);
 			this.lcmOrder = this.calculateLogarithmicCost(result);
 			this.lcmOrderTotal += this.lcmOrder;
 			if(result > 0){
 				this.currentLine = this.labels.get(elements[1]);
-				return "Register " + elements[0] + " > 0" + ". Go to line " + this.currentLine;
+				return "Register " + elements[0] + " > 0" + ". Go to line " + this.currentLine + ".";
 			}
 			else{
 				this.currentLine++;
-				return "Register " + elements[0] + " <= 0" + ". Just go one line further";
+				return "Register " + elements[0] + " <= 0" + ". Just going one line further.";
 			}
 		}
 		if(computingLine.matches("GLZ(R[0-9]*|[(]R[0-9]*[)]),[L][0-9]*")){
@@ -322,37 +297,16 @@ public class Ram{
 			this.ucmMemory++;
 			this.ucmMemoryTotal++;
 			String[] elements = computingLine.replace("GLZ", "").split(",");
-			/*if(elements[0].matches("[(][0-9]*[)]")){
-				int indirectRegister = this.Registers[this.Registers[Integer.parseInt(elements[0].replace("(", "").replace(")", ""))]];
-				if(indirectRegister < 0){
-					this.currentLine = this.labels.get(elements[1]);
-					return "Register " + indirectRegister + " == 0" + ". Go to line " + this.currentLine;
-				}
-				else{
-					this.currentLine++;
-					return "Register " + indirectRegister + " != 0" + ". Just go one line further";
-				}
-			}
-			else{
-				if(this.Registers[Integer.parseInt(elements[0])] < 0){
-					this.currentLine = this.labels.get(elements[1]);
-					return "Register " + elements[0] + " < 0" + ". Go to line " + this.currentLine;
-				}
-				else{
-					this.currentLine++;
-					return "Register " + elements[0] + " > 0" + ". Just go one line further";
-				}
-			}*/
 			int result = this.getElement(elements[0]);
 			this.lcmOrder = this.calculateLogarithmicCost(result);
 			this.lcmOrderTotal += this.lcmOrder;
 			if(result < 0){
 				this.currentLine = this.labels.get(elements[1]);
-				return "Register " + elements[0] + " < 0" + ". Go to line " + this.currentLine;
+				return "Register " + elements[0] + " < 0" + ". Go to line " + this.currentLine + ".";
 			}
 			else{
 				this.currentLine++;
-				return "Register " + elements[0] + " > 0" + ". Just go one line further";
+				return "Register " + elements[0] + " > 0" + ". Just going one line further";
 			}
 		}
 		if(computingLine.matches("GZ(R[0-9]*|[(]R[0-9]*[)]),[L][0-9]*")){
@@ -361,37 +315,16 @@ public class Ram{
 			this.ucmMemory++;
 			this.ucmMemoryTotal++;
 			String[] elements = computingLine.replace("GZ", "").split(",");
-			/*if(elements[0].matches("[(][0-9]*[)]")){
-				int indirectRegister = this.Registers[this.Registers[Integer.parseInt(elements[0].replace("(", "").replace(")", ""))]];
-				if(indirectRegister == 0){
-					this.currentLine = this.labels.get(elements[1]);
-					return "Register " + indirectRegister + " == 0" + ". Go to line " + this.currentLine;
-				}
-				else{
-					this.currentLine++;
-					return "Register " + indirectRegister + " != 0" + ". Just go one line further";
-				}
-			}
-			else{
-				if(this.Registers[Integer.parseInt(elements[0])] == 0){
-					this.currentLine = this.labels.get(elements[1]);
-					return "Register " + elements[0] + " == 0" + ". Go to line " + this.currentLine;
-				}
-				else{
-					this.currentLine++;
-					return "Register " + elements[0] + " != 0" + ". Just go one line further";
-				}
-			}*/
 			int result = this.getElement(elements[0]);
 			this.lcmOrder = this.calculateLogarithmicCost(result);
 			this.lcmOrderTotal += this.lcmOrder;
 			if(result == 0){
 				this.currentLine = this.labels.get(elements[1]);
-				return "Register " + elements[0] + " == 0" + ". Go to line " + this.currentLine;
+				return "Register " + elements[0] + " == 0" + ". Go to line " + this.currentLine + ".";
 			}
 			else{
 				this.currentLine++;
-				return "Register " + elements[0] + " != 0" + ". Just go one line further";
+				return "Register " + elements[0] + " != 0" + ". Just going one line further";
 			}
 		}
 		//if there is a GOTO just set the currentLine to the one which has the label
