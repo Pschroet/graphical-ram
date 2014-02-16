@@ -21,6 +21,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -36,7 +37,7 @@ public class Graphic implements ActionListener{
 	private JTextField[] registersFields;
 	private JButton newRegister;
 	private int nrRegisters;
-	private JPanel programPanel;		//contains the program
+	private JScrollPane programPanel;		//contains the program
 	private JTextArea programArea;
 	private JPanel costMeasure;
 	private JLabel ucmLabel;
@@ -107,11 +108,10 @@ public class Graphic implements ActionListener{
 		}
 		this.registerPanel.add(registersPanel, BorderLayout.CENTER);
 		this.frame.add(this.registerPanel, BorderLayout.NORTH);
-		//create the text area for the programm and put it into the programm panel
+		//create the text area for the programm and put it into the programm panel which contains scroll bars
 		this.programArea = new JTextArea(25, 50);
 		this.programArea.setEditable(true);
-		this.programPanel = new JPanel(new BorderLayout());
-		this.programPanel.add(programArea, BorderLayout.CENTER);
+		this.programPanel = new JScrollPane(this.programArea);
 		this.frame.add(this.programPanel, BorderLayout.CENTER);
 		this.showCurrentLine();
 		//create  the panel for the cost measure
