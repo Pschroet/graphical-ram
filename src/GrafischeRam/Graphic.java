@@ -32,10 +32,10 @@ public class Graphic implements ActionListener{
 	private JMenuItem saveProgram;
 	private JMenuItem loadProgram;
 	private JMenuItem exit;
-	private JPanel registerPanel;		//contains the register fields and their values
-	private JPanel registersPanel;
+	private JPanel registerPanel;			//contains the panel with the registers and the button to create new registers
+	private JPanel registersPanel;			//contains the registers
 	private JTextField[] registersFields;
-	private JButton newRegister;
+	private JButton newRegisterButton;
 	private int nrRegisters;
 	private JScrollPane programPanel;		//contains the program
 	private JTextArea programArea;
@@ -52,12 +52,12 @@ public class Graphic implements ActionListener{
 	private JLabel lcmOrderTotal;
 	private JLabel lcmMemoryTotal;
 	private JLabel lcmTotalLabel;
-	private JPanel progressPanel;		//contains the compute buttons
+	private JPanel progressPanel;			//contains the compute buttons
 	private JPanel buttonPanel;
 	private JButton resetButton;
 	private JPanel currentLine;
-	private JButton computeLine;
-	private JButton computeProgram;
+	private JButton computeLineButton;
+	private JButton computeProgramButton;
 	private JTextField output;
 	private String lastProgram;
 	private int[] lastRegisters;
@@ -91,10 +91,10 @@ public class Graphic implements ActionListener{
 		//create the panel for the registers
 		this.registerPanel = new JPanel(new BorderLayout());
 		//create a button to add more registers
-		this.newRegister = new JButton("Add Register");
-		this.newRegister.setActionCommand("newRegister");
-		this.newRegister.addActionListener(this);
-		this.registerPanel.add(this.newRegister, BorderLayout.WEST);
+		this.newRegisterButton = new JButton("Add Register");
+		this.newRegisterButton.setActionCommand("newRegister");
+		this.newRegisterButton.addActionListener(this);
+		this.registerPanel.add(this.newRegisterButton, BorderLayout.WEST);
 		//create a panel separately for the registers
 		this.registersPanel = new JPanel(new FlowLayout());
 		//create a text field for every register, put the content of the register into it, put it into the register panel and all together in the main frame
@@ -154,19 +154,19 @@ public class Graphic implements ActionListener{
 		this.resetButton.setEnabled(false);
 		this.resetButton.addActionListener(this);
 		this.resetButton.setActionCommand("reset");
-		this.computeLine = new JButton("Compute Current Line");
-		this.computeLine.addActionListener(this);
-		this.computeLine.setActionCommand("computeLine");
-		this.computeProgram = new JButton("Compute Program");
-		this.computeProgram.addActionListener(this);
-		this.computeProgram.setActionCommand("computeProgram");
+		this.computeLineButton = new JButton("Compute Current Line");
+		this.computeLineButton.addActionListener(this);
+		this.computeLineButton.setActionCommand("computeLine");
+		this.computeProgramButton = new JButton("Compute Program");
+		this.computeProgramButton.addActionListener(this);
+		this.computeProgramButton.setActionCommand("computeProgram");
 		//and add both to the progressPanel, which is added to the main frame
 		this.progressPanel = new JPanel(new BorderLayout());
 		//create a panel for the buttons, add them and then add the button panel to the progress panel
 		this.buttonPanel = new JPanel(new FlowLayout());
 		this.buttonPanel.add(this.resetButton);
-		this.buttonPanel.add(this.computeLine);
-		this.buttonPanel.add(this.computeProgram);
+		this.buttonPanel.add(this.computeLineButton);
+		this.buttonPanel.add(this.computeProgramButton);
 		this.progressPanel.add(buttonPanel, BorderLayout.WEST);
 		//create the text field for the output and make it uneditable
 		this.output = new JTextField(50);
@@ -461,7 +461,7 @@ public class Graphic implements ActionListener{
 				showCurrentLine();
 				break;
 			case "computeLine":
-				this.computeLine.setEnabled(false);
+				this.computeLineButton.setEnabled(false);
 				checkRegisters();
 				try{
 					//check if program has been changed and reload if necessary
@@ -486,15 +486,15 @@ public class Graphic implements ActionListener{
 				catch(ArrayIndexOutOfBoundsException exception){
 					this.output.setText("At least one register in line " + (this.ram.currentLine + 1)  + " does not exist");
 				}
-				this.computeLine.setEnabled(true);
+				this.computeLineButton.setEnabled(true);
 				break;
 			case "computeProgram":
-				this.computeProgram.setEnabled(false);
-				this.computeLine.doClick();
+				this.computeProgramButton.setEnabled(false);
+				this.computeLineButton.doClick();
 				while(!this.output.getText().matches("No possiblity to compute further.*") && !this.output.getText().matches("End of program reached.*") && ! this.output.getText().matches("Syntax not allowed.*")){
-					this.computeLine.doClick();
+					this.computeLineButton.doClick();
 				}
-				this.computeProgram.setEnabled(true);
+				this.computeProgramButton.setEnabled(true);
 				break;
 		}
 	}
