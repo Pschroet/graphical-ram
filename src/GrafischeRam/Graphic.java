@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 
 public class Graphic implements ActionListener{
 	private Ram ram;
@@ -34,12 +35,13 @@ public class Graphic implements ActionListener{
 	private JMenuItem exit;
 	private JPanel registerPanel;			//contains the panel with the registers and the button to create new registers
 	private JPanel registersPanel;			//contains the registers
+	private JScrollPane registerScrollPane;
 	private JTextField[] registersFields;
 	private JButton newRegisterButton;
 	private int nrRegisters;
 	private JScrollPane programPanel;		//contains the program
 	private JTextArea programArea;
-	private JPanel costMeasure;
+	private JPanel costMeasurePanel;
 	private JLabel ucmLabel;
 	private JLabel ucmOrder;
 	private JLabel ucmMemory;
@@ -107,7 +109,11 @@ public class Graphic implements ActionListener{
 			this.registersPanel.add(registersFields[i]);
 		}
 		this.registerPanel.add(registersPanel, BorderLayout.CENTER);
-		this.frame.add(this.registerPanel, BorderLayout.NORTH);
+		//put the panel for the registers and the add button into a scrollpane to enable scrolling
+		this.registerScrollPane = new JScrollPane(this.registerPanel);
+		this.registerScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		this.registerScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		this.frame.add(this.registerScrollPane, BorderLayout.NORTH);
 		//create the text area for the programm and put it into the programm panel which contains scroll bars
 		this.programArea = new JTextArea(25, 50);
 		this.programArea.setEditable(true);
@@ -115,40 +121,40 @@ public class Graphic implements ActionListener{
 		this.frame.add(this.programPanel, BorderLayout.CENTER);
 		this.showCurrentLine();
 		//create  the panel for the cost measure
-		this.costMeasure = new JPanel(new GridLayout(0, 3, 10, 0));
-		this.costMeasure.add(new JLabel(" "));
-		this.costMeasure.add(new JLabel("Order"));
-		this.costMeasure.add(new JLabel("Memory"));
+		this.costMeasurePanel = new JPanel(new GridLayout(0, 3, 10, 0));
+		this.costMeasurePanel.add(new JLabel(" "));
+		this.costMeasurePanel.add(new JLabel("Order"));
+		this.costMeasurePanel.add(new JLabel("Memory"));
 		
 		this.ucmLabel = new JLabel("UCM");
-		this.costMeasure.add(this.ucmLabel);
+		this.costMeasurePanel.add(this.ucmLabel);
 		this.ucmOrder = new JLabel("0");
-		this.costMeasure.add(this.ucmOrder);
+		this.costMeasurePanel.add(this.ucmOrder);
 		this.ucmMemory = new JLabel("0");
-		this.costMeasure.add(this.ucmMemory);
+		this.costMeasurePanel.add(this.ucmMemory);
 		
 		this.ucmTotalLabel = new JLabel("Total UCM");
-		this.costMeasure.add(this.ucmTotalLabel);
+		this.costMeasurePanel.add(this.ucmTotalLabel);
 		this.ucmOrderTotal = new JLabel("0");
-		this.costMeasure.add(this.ucmOrderTotal);
+		this.costMeasurePanel.add(this.ucmOrderTotal);
 		this.ucmMemoryTotal = new JLabel("0");
-		this.costMeasure.add(this.ucmMemoryTotal);
+		this.costMeasurePanel.add(this.ucmMemoryTotal);
 		
 		this.lcmLabel = new JLabel("LCM");
-		this.costMeasure.add(this.lcmLabel);
+		this.costMeasurePanel.add(this.lcmLabel);
 		this.lcmOrder = new JLabel("0");
-		this.costMeasure.add(this.lcmOrder);
+		this.costMeasurePanel.add(this.lcmOrder);
 		this.lcmMemory = new JLabel("-");
-		this.costMeasure.add(this.lcmMemory);
+		this.costMeasurePanel.add(this.lcmMemory);
 		
 		this.lcmTotalLabel = new JLabel("Total LCM");
-		this.costMeasure.add(this.lcmTotalLabel);
+		this.costMeasurePanel.add(this.lcmTotalLabel);
 		this.lcmOrderTotal = new JLabel("0");
-		this.costMeasure.add(this.lcmOrderTotal);
+		this.costMeasurePanel.add(this.lcmOrderTotal);
 		this.lcmMemoryTotal = new JLabel("-");
-		this.costMeasure.add(this.lcmMemoryTotal);
+		this.costMeasurePanel.add(this.lcmMemoryTotal);
 		
-		this.frame.add(this.costMeasure, BorderLayout.EAST);
+		this.frame.add(this.costMeasurePanel, BorderLayout.EAST);
 		//create three buttons, the first to reset the program, the second to compute one line, the third to compute all possible...
 		this.resetButton = new JButton("Reset program");
 		this.resetButton.setEnabled(false);
@@ -207,7 +213,7 @@ public class Graphic implements ActionListener{
 		}
 		this.registersPanel.repaint();
 		this.registerPanel.add(this.registersPanel, BorderLayout.CENTER);
-		this.frame.add(this.registerPanel, BorderLayout.NORTH);
+		this.frame.add(this.registerScrollPane, BorderLayout.NORTH);
 		this.frame.revalidate();
 	}
 	
@@ -308,7 +314,7 @@ public class Graphic implements ActionListener{
 			//put the panels into the upper elements
 			this.registerPanel.add(this.registersPanel, BorderLayout.CENTER);
 			this.registerPanel.repaint();
-			this.frame.add(this.registerPanel, BorderLayout.NORTH);
+			this.frame.add(this.registerScrollPane, BorderLayout.NORTH);
 			this.frame.revalidate();
 			this.nrRegisters = registers.length;
 		}
