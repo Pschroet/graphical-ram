@@ -31,7 +31,9 @@ public class GraphicSwing implements ActionListener{
 	private JFrame frame;
 	private JMenuBar menuBar;
 	private JMenuItem saveProgram;
+	private String lastSavedFile;
 	private JMenuItem loadProgram;
+	private String lastLoadedFile;			//the last file that has been loaded, this variable is just used to log it
 	private JMenuItem exit;
 	private JPanel registerPanel;			//contains the panel with the registers and the button to create new registers
 	private JPanel registersPanel;			//contains the registers
@@ -60,7 +62,11 @@ public class GraphicSwing implements ActionListener{
 	private JPanel currentLine;
 	private JButton computeLineButton;
 	private JButton computeProgramButton;
-	private JTextField output;
+	private JTextField output;				//text field, that contains the last line of output
+	private JFrame outputLogFrame;			//collects all the output to show it in the log, is invisible unless the Log-button is pressed
+	private JScrollPane outputScrollPane;
+	private JTextArea outputLog;			//has all the output
+	private JButton logButton;				//button to open the log window
 	private String lastProgram;
 	private int[] lastRegisters;
 	private String savedProgram;
@@ -178,6 +184,25 @@ public class GraphicSwing implements ActionListener{
 		this.output = new JTextField(50);
 		this.output.setEditable(false);
 		this.progressPanel.add(this.output, BorderLayout.CENTER);
+		//create the button to open the log window
+		this.logButton = new JButton("Log");
+		this.logButton.addActionListener(this);
+		this.logButton.setActionCommand("openLog");
+		this.progressPanel.add(this.logButton, BorderLayout.EAST);
+		//create the log frame
+		this.outputLogFrame = new JFrame("Output Log");
+		this.outputLogFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.outputLogFrame.setSize(640, 400);
+		this.outputLogFrame.setLayout(new BorderLayout());
+		//create the text field with the output
+		this.outputLog = new  JTextArea();
+		this.outputLog.setText("");
+		this.outputLog.setEditable(false);
+		//create the scroll panel for the output log text area
+		this.outputScrollPane = new  JScrollPane(this.outputLog);
+		this.outputScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		this.outputScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		this.outputLogFrame.add(this.outputScrollPane, BorderLayout.CENTER);
 		//create the panel for the output, put the text field for the output in it and put the panel in the frame
 		this.frame.add(this.progressPanel, BorderLayout.SOUTH);
 		//create a scroll pane so content not fitting in the window will be shown
@@ -275,6 +300,7 @@ public class GraphicSwing implements ActionListener{
 			catch(IOException e3){
 				System.out.println("Open error " + e3);
 			}
+			this.lastLoadedFile = file.getName();
 			return textContainer.split("%");
 		}
 		return null;
@@ -359,6 +385,7 @@ public class GraphicSwing implements ActionListener{
 			try{
 				fileOut.write(outputText.getBytes(), 0, outputText.length());
 				fileOut.close();
+				this.lastSavedFile = selFile.getName();
 			}
 			catch(IOException e2){
 				e2.printStackTrace();
@@ -441,19 +468,29 @@ public class GraphicSwing implements ActionListener{
 			}
 		}
 	}
+	
+	private void writeLogText(String text){
+		this.outputLog.setText(this.outputLog.getText() + System.lineSeparator() + text);
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		String text;
 		switch(e.getActionCommand()){
 			case "load":
 				String[] newProgramLines = chooseProgramFile();
 				if(newProgramLines != null){
 					loadNewProgram(newProgramLines, true);
 				}
-				this.output.setText("");
+				text = "Loaded file " + this.lastLoadedFile;
+				this.output.setText(text);
+				this.writeLogText(text);
 				break;
 			case "save":
 				saveProgram();
+				text = "Saved file " + this.lastSavedFile;
+				this.output.setText(text);
+				this.writeLogText(text);
 			    break;
 			case "exit":
 				System.exit(0);
@@ -474,7 +511,9 @@ public class GraphicSwing implements ActionListener{
 					if(!this.lastProgram.equals(this.programArea.getText())){
 						this.reloadProgram();
 					}
-					this.output.setText((this.ram.computeLine()));
+					String output = this.ram.computeLine();
+					this.writeLogText(output);
+					this.output.setText(output);
 					this.updateRegister();
 					this.lastProgram = this.programArea.getText();
 					showCurrentLine();
@@ -501,6 +540,9 @@ public class GraphicSwing implements ActionListener{
 					this.computeLineButton.doClick();
 				}
 				this.computeProgramButton.setEnabled(true);
+				break;
+			case "openLog":
+				this.outputLogFrame.setVisible(true);
 				break;
 		}
 	}
