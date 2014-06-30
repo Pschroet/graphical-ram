@@ -481,10 +481,11 @@ public class GraphicSwing implements ActionListener{
 				String[] newProgramLines = chooseProgramFile();
 				if(newProgramLines != null){
 					loadNewProgram(newProgramLines, true);
+					text = "Loaded file " + this.lastLoadedFile;
+					this.output.setText(text);
+					this.writeLogText(text);
+					this.resetButton.setEnabled(true);
 				}
-				text = "Loaded file " + this.lastLoadedFile;
-				this.output.setText(text);
-				this.writeLogText(text);
 				break;
 			case "save":
 				saveProgram();
