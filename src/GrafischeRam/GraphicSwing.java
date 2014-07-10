@@ -253,9 +253,6 @@ public class GraphicSwing implements ActionListener{
 		if(this.currentLine != null){
 			this.currentLine.removeAll();
 		}
-		if(this.ram.currentLine == -1 && !this.programArea.getText().matches("")){
-			
-		}
 		this.currentLine = new JPanel();
 		this.currentLine.setLayout(new BoxLayout(this.currentLine, BoxLayout.PAGE_AXIS));
 		for(int i = 0; i < this.ram.lines.length; i++){
