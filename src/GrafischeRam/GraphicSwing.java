@@ -30,6 +30,7 @@ public class GraphicSwing implements ActionListener{
 	private Ram ram;
 	private JFrame frame;
 	private JMenuBar menuBar;
+	private JMenuItem resetProgram;
 	private JMenuItem saveProgram;
 	private String lastSavedFile;
 	private JMenuItem loadProgram;
@@ -82,6 +83,10 @@ public class GraphicSwing implements ActionListener{
 		//create the menu bar and it's elements
 		this.menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
+		this.resetProgram = new JMenuItem("Reset Program");
+		this.resetProgram.setActionCommand("reset");
+		this.resetProgram.addActionListener(this);
+		fileMenu.add(resetProgram);
 		this.loadProgram = new JMenuItem("Load Program");
 		this.loadProgram.setActionCommand("load");
 		this.loadProgram.addActionListener(this);
@@ -486,6 +491,8 @@ public class GraphicSwing implements ActionListener{
 					this.writeLogText(text);
 					this.restartButton.setEnabled(true);
 				}
+				break;
+			case "reset":
 				break;
 			case "save":
 				saveProgram();
