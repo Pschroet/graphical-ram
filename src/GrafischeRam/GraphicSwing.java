@@ -477,11 +477,25 @@ public class GraphicSwing implements ActionListener{
 	private void writeLogText(String text){
 		this.outputLog.setText(this.outputLog.getText() + System.lineSeparator() + text);
 	}
-
+	
+	private void resetProgram(){
+		this.ram = new Ram();
+		this.registersFields = new JTextField[this.ram.Registers.length];
+		this.nrRegisters = 0;
+		this.programArea.setText("");
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String text;
+		int[] unifiedCost;
+		int[] unifiedTotalCost;
 		switch(e.getActionCommand()){
+			case "reset":
+				this.resetProgram();
+				this.updateRegister();
+				showCurrentLine();
+				break;
 			case "load":
 				String[] newProgramLines = chooseProgramFile();
 				if(newProgramLines != null){
@@ -492,13 +506,19 @@ public class GraphicSwing implements ActionListener{
 					this.restartButton.setEnabled(true);
 				}
 				break;
-			case "reset":
-				break;
 			case "save":
 				saveProgram();
 				text = "Saved file " + this.lastSavedFile;
 				this.output.setText(text);
 				this.writeLogText(text);
+				unifiedCost = this.ram.getCurrentUnifiedCost();
+				this.ucmOrder.setText(String.valueOf(unifiedCost[0]));
+				this.ucmMemory.setText(String.valueOf(unifiedCost[1]));
+				this.lcmOrder.setText(String.valueOf(this.ram.getCurrentLogarithmicCost()));
+				unifiedTotalCost = this.ram.getTotalUnifiedCost();
+				this.ucmOrderTotal.setText(String.valueOf(unifiedTotalCost[0]));
+				this.ucmMemoryTotal.setText(String.valueOf(unifiedTotalCost[1]));
+				this.lcmOrderTotal.setText(String.valueOf(this.ram.getTotalLogarithmicCost()));
 			    break;
 			case "exit":
 				System.exit(0);
@@ -526,12 +546,12 @@ public class GraphicSwing implements ActionListener{
 					this.lastProgram = this.programArea.getText();
 					showCurrentLine();
 					//get the unified costs of the current line and display them
-					int[] unifiedCost = this.ram.getCurrentUnifiedCost();
+					unifiedCost = this.ram.getCurrentUnifiedCost();
 					this.ucmOrder.setText(String.valueOf(unifiedCost[0]));
 					this.ucmMemory.setText(String.valueOf(unifiedCost[1]));
 					this.lcmOrder.setText(String.valueOf(this.ram.getCurrentLogarithmicCost()));
 					//get the total unified costs and display them
-					int[] unifiedTotalCost = this.ram.getTotalUnifiedCost();
+					unifiedTotalCost = this.ram.getTotalUnifiedCost();
 					this.ucmOrderTotal.setText(String.valueOf(unifiedTotalCost[0]));
 					this.ucmMemoryTotal.setText(String.valueOf(unifiedTotalCost[1]));
 					this.lcmOrderTotal.setText(String.valueOf(this.ram.getTotalLogarithmicCost()));
