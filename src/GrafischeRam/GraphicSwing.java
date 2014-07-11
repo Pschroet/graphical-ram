@@ -30,6 +30,7 @@ public class GraphicSwing implements ActionListener{
 	private Ram ram;
 	private JFrame frame;
 	private JMenuBar menuBar;
+	private JMenuItem resetProgram;
 	private JMenuItem saveProgram;
 	private String lastSavedFile;
 	private JMenuItem loadProgram;
@@ -58,7 +59,7 @@ public class GraphicSwing implements ActionListener{
 	private JLabel lcmTotalLabel;
 	private JPanel progressPanel;			//contains the compute buttons
 	private JPanel buttonPanel;
-	private JButton resetButton;
+	private JButton restartButton;
 	private JPanel currentLine;
 	private JButton computeLineButton;
 	private JButton computeProgramButton;
@@ -82,6 +83,10 @@ public class GraphicSwing implements ActionListener{
 		//create the menu bar and it's elements
 		this.menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
+		this.resetProgram = new JMenuItem("Reset Program");
+		this.resetProgram.setActionCommand("reset");
+		this.resetProgram.addActionListener(this);
+		fileMenu.add(resetProgram);
 		this.loadProgram = new JMenuItem("Load Program");
 		this.loadProgram.setActionCommand("load");
 		this.loadProgram.addActionListener(this);
@@ -161,11 +166,11 @@ public class GraphicSwing implements ActionListener{
 		this.costMeasurePanel.add(this.lcmMemoryTotal);
 		
 		this.frame.add(this.costMeasurePanel, BorderLayout.EAST);
-		//create three buttons, the first to reset the program, the second to compute one line, the third to compute all possible...
-		this.resetButton = new JButton("Reset program");
-		this.resetButton.setEnabled(false);
-		this.resetButton.addActionListener(this);
-		this.resetButton.setActionCommand("reset");
+		//create three buttons, the first to restart the program, the second to compute one line, the third to compute all possible...
+		this.restartButton = new JButton("Restart program");
+		this.restartButton.setEnabled(false);
+		this.restartButton.addActionListener(this);
+		this.restartButton.setActionCommand("restart");
 		this.computeLineButton = new JButton("Compute Current Line");
 		this.computeLineButton.addActionListener(this);
 		this.computeLineButton.setActionCommand("computeLine");
@@ -176,7 +181,7 @@ public class GraphicSwing implements ActionListener{
 		this.progressPanel = new JPanel(new BorderLayout());
 		//create a panel for the buttons, add them and then add the button panel to the progress panel
 		this.buttonPanel = new JPanel(new FlowLayout());
-		this.buttonPanel.add(this.resetButton);
+		this.buttonPanel.add(this.restartButton);
 		this.buttonPanel.add(this.computeLineButton);
 		this.buttonPanel.add(this.computeProgramButton);
 		this.progressPanel.add(buttonPanel, BorderLayout.WEST);
@@ -308,7 +313,7 @@ public class GraphicSwing implements ActionListener{
 	
 	//load a new program given (usually by chooseProgramFile), gives it to the Ram and puts the text into the program area
 	private void loadNewProgram(String[] program, boolean remember){
-		//create the new program by concating the lines of the program and ignoring the first line 
+		//create the new program by concatenating the lines of the program and ignoring the first line 
 		String newProgram = "";
 		for(int i = 1; i < program.length; i++){
 			newProgram = newProgram.concat(program[i] + System.getProperty("line.separator"));
@@ -360,13 +365,13 @@ public class GraphicSwing implements ActionListener{
 		//put the program in the program area
 		this.programArea.setText(newProgram);
 		if(remember) this.savedProgram = newProgram;
-		//save the registers for reseting
+		//save the registers for restarting
 		this.lastRegisters = new int[registers.length];
 		for(int i = 0; i < registers.length; i++){
 			this.lastRegisters[i] = Integer.parseInt(registers[i].trim());
 		}
 		this.showCurrentLine();
-		this.resetButton.setEnabled(true);
+		this.restartButton.setEnabled(true);
 	}
 	
 	private void saveProgram(){
@@ -426,8 +431,8 @@ public class GraphicSwing implements ActionListener{
 		return registers;
 	}
 	
-	//resets the program from the window and takes the content from the registers and gives it to the underlying ram
-	private void resetProgram(){
+	//restarts the program from the window and takes the content from the registers and gives it to the underlying ram
+	private void restartProgram(){
 		String newRegisters = "";
 		for(int i = 0; i < this.lastRegisters.length-1; i++){
 			newRegisters = newRegisters.concat(this.lastRegisters[i] + ";");
@@ -472,11 +477,25 @@ public class GraphicSwing implements ActionListener{
 	private void writeLogText(String text){
 		this.outputLog.setText(this.outputLog.getText() + System.lineSeparator() + text);
 	}
-
+	
+	private void resetProgram(){
+		this.ram = new Ram();
+		this.registersFields = new JTextField[this.ram.Registers.length];
+		this.nrRegisters = 0;
+		this.programArea.setText("");
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String text;
+		int[] unifiedCost;
+		int[] unifiedTotalCost;
 		switch(e.getActionCommand()){
+			case "reset":
+				this.resetProgram();
+				this.updateRegister();
+				showCurrentLine();
+				break;
 			case "load":
 				String[] newProgramLines = chooseProgramFile();
 				if(newProgramLines != null){
@@ -484,7 +503,7 @@ public class GraphicSwing implements ActionListener{
 					text = "Loaded file " + this.lastLoadedFile;
 					this.output.setText(text);
 					this.writeLogText(text);
-					this.resetButton.setEnabled(true);
+					this.restartButton.setEnabled(true);
 				}
 				break;
 			case "save":
@@ -492,6 +511,14 @@ public class GraphicSwing implements ActionListener{
 				text = "Saved file " + this.lastSavedFile;
 				this.output.setText(text);
 				this.writeLogText(text);
+				unifiedCost = this.ram.getCurrentUnifiedCost();
+				this.ucmOrder.setText(String.valueOf(unifiedCost[0]));
+				this.ucmMemory.setText(String.valueOf(unifiedCost[1]));
+				this.lcmOrder.setText(String.valueOf(this.ram.getCurrentLogarithmicCost()));
+				unifiedTotalCost = this.ram.getTotalUnifiedCost();
+				this.ucmOrderTotal.setText(String.valueOf(unifiedTotalCost[0]));
+				this.ucmMemoryTotal.setText(String.valueOf(unifiedTotalCost[1]));
+				this.lcmOrderTotal.setText(String.valueOf(this.ram.getTotalLogarithmicCost()));
 			    break;
 			case "exit":
 				System.exit(0);
@@ -499,8 +526,8 @@ public class GraphicSwing implements ActionListener{
 			case "newRegister":
 				this.addRegister("0");
 				break;
-			case "reset":
-				this.resetProgram();
+			case "restart":
+				this.restartProgram();
 				this.updateRegister();
 				showCurrentLine();
 				break;
@@ -519,12 +546,12 @@ public class GraphicSwing implements ActionListener{
 					this.lastProgram = this.programArea.getText();
 					showCurrentLine();
 					//get the unified costs of the current line and display them
-					int[] unifiedCost = this.ram.getCurrentUnifiedCost();
+					unifiedCost = this.ram.getCurrentUnifiedCost();
 					this.ucmOrder.setText(String.valueOf(unifiedCost[0]));
 					this.ucmMemory.setText(String.valueOf(unifiedCost[1]));
 					this.lcmOrder.setText(String.valueOf(this.ram.getCurrentLogarithmicCost()));
 					//get the total unified costs and display them
-					int[] unifiedTotalCost = this.ram.getTotalUnifiedCost();
+					unifiedTotalCost = this.ram.getTotalUnifiedCost();
 					this.ucmOrderTotal.setText(String.valueOf(unifiedTotalCost[0]));
 					this.ucmMemoryTotal.setText(String.valueOf(unifiedTotalCost[1]));
 					this.lcmOrderTotal.setText(String.valueOf(this.ram.getTotalLogarithmicCost()));
