@@ -103,8 +103,9 @@ public class GraphicSwing implements ActionListener{
 		this.resetProgram.addActionListener(this);
 		editMenu.add(resetProgram);
 		this.checkSyntax = new JMenuItem("Check Program Syntax");
+		this.checkSyntax.setActionCommand("checkSyntax");
+		this.checkSyntax.addActionListener(this);
 		editMenu.add(this.checkSyntax);
-		this.exit.setActionCommand("checkSyntax");
 		this.menuBar.add(editMenu);
 		this.frame.setJMenuBar(this.menuBar);
 		//create the panel for the registers
@@ -524,6 +525,14 @@ public class GraphicSwing implements ActionListener{
 				this.lcmOrderTotal.setText(String.valueOf(this.ram.getTotalLogarithmicCost()));
 			    break;
 			case "checkSyntax":
+				boolean checkedSyntax = this.ram.checkSyntax();
+				if(checkedSyntax){
+					this.writeLogText("The syntax is correct");
+					this.output.setText("The syntax is correct");
+				}
+				else{
+					this.writeLogText(this.ram.getSyntaxErrors());
+				}
 				break;
 			case "exit":
 				System.exit(0);

@@ -15,6 +15,7 @@ public class Ram{
 	private int ucmMemoryTotal;
 	private double lcmOrder;
 	private double lcmOrderTotal;
+	private String syntaxErrors;
 	
 	public Ram(){
 		this.Registers = new int[0];
@@ -27,6 +28,7 @@ public class Ram{
 		this.ucmMemoryTotal = 0;
 		this.lcmOrder = 0;
 		this.lcmOrderTotal = 0;
+		this.syntaxErrors = "";
 	}
 	//initiates all things necessary to compute the given program
 	//p - program
@@ -44,6 +46,7 @@ public class Ram{
 		this.ucmMemoryTotal = 0;
 		this.lcmOrder = 0;
 		this.lcmOrderTotal = 0;
+		this.syntaxErrors = "";
 	}
 	
 	//reads the contents of the given registers and transforms them into integer
@@ -372,6 +375,42 @@ public class Ram{
 			return Integer.parseInt(half);
 		}
 		return 0;
+	}
+	
+	//runs through the program and in this way checks the syntax of the program
+	//returns if there are errors
+	boolean checkSyntax(){
+		boolean result = true;
+		//save the current line to set it to this point at the end again
+		int initialCurrentLine = this.currentLine;
+		this.currentLine = 0;
+		String output = "";
+		String lastOutput = "";
+		if(this.lines.length > 0){
+			lastOutput = this.computeLine();
+			output = lastOutput;
+		}
+		while(this.currentLine < this.lines.length){
+			lastOutput = this.computeLine();
+			output = output.concat(System.getProperty("line.separator") + lastOutput);
+			this.currentLine++;
+			//if there are errors remember that, change the result and save the error message
+			if(lastOutput.equals("Error. End of program reached, but HALT is missing.") || lastOutput.equals("No possiblity to compute further. Is the syntax correct?")){
+				result = false;
+				if(this.syntaxErrors != ""){
+					this.syntaxErrors = this.syntaxErrors.concat(System.getProperty("line.separator") + "Line " + this.currentLine + ": " + lastOutput);
+				}
+				else{
+					this.syntaxErrors = this.syntaxErrors.concat("Line " + this.currentLine + ": " + lastOutput);
+				}
+			}
+		}
+		this.currentLine = initialCurrentLine;
+		return result;
+	}
+	
+	String getSyntaxErrors(){
+		return this.syntaxErrors;
 	}
 	
 	//load a new set of registers and program and sets these to be the new registers and program to be computed
