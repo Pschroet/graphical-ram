@@ -30,12 +30,13 @@ public class GraphicSwing implements ActionListener{
 	private Ram ram;
 	private JFrame frame;
 	private JMenuBar menuBar;
-	private JMenuItem resetProgram;
 	private JMenuItem saveProgram;
 	private String lastSavedFile;
 	private JMenuItem loadProgram;
 	private String lastLoadedFile;			//the last file that has been loaded, this variable is just used to log it
 	private JMenuItem exit;
+	private JMenuItem resetProgram;
+	private JMenuItem checkSyntax;
 	private JPanel registerPanel;			//contains the panel with the registers and the button to create new registers
 	private JPanel registersPanel;			//contains the registers
 	private JScrollPane registerScrollPane;
@@ -83,10 +84,6 @@ public class GraphicSwing implements ActionListener{
 		//create the menu bar and it's elements
 		this.menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
-		this.resetProgram = new JMenuItem("Reset Program");
-		this.resetProgram.setActionCommand("reset");
-		this.resetProgram.addActionListener(this);
-		fileMenu.add(resetProgram);
 		this.loadProgram = new JMenuItem("Load Program");
 		this.loadProgram.setActionCommand("load");
 		this.loadProgram.addActionListener(this);
@@ -100,6 +97,15 @@ public class GraphicSwing implements ActionListener{
 		this.exit.addActionListener(this);
 		fileMenu.add(this.exit);
 		this.menuBar.add(fileMenu);
+		JMenu editMenu = new JMenu("Edit");
+		this.resetProgram = new JMenuItem("Reset Program");
+		this.resetProgram.setActionCommand("reset");
+		this.resetProgram.addActionListener(this);
+		editMenu.add(resetProgram);
+		this.checkSyntax = new JMenuItem("Check Program Syntax");
+		editMenu.add(this.checkSyntax);
+		this.exit.setActionCommand("checkSyntax");
+		this.menuBar.add(editMenu);
 		this.frame.setJMenuBar(this.menuBar);
 		//create the panel for the registers
 		this.registerPanel = new JPanel(new BorderLayout());
@@ -517,6 +523,8 @@ public class GraphicSwing implements ActionListener{
 				this.ucmMemoryTotal.setText(String.valueOf(unifiedTotalCost[1]));
 				this.lcmOrderTotal.setText(String.valueOf(this.ram.getTotalLogarithmicCost()));
 			    break;
+			case "checkSyntax":
+				break;
 			case "exit":
 				System.exit(0);
 				break;
