@@ -453,6 +453,7 @@ public class GraphicSwing implements ActionListener{
 	}
 	
 	private void reloadProgram(){
+		//TODO fix error, when there are now registers
 		String newRegisters = this.registersFields[0].getText();
 		try{
 			for(int i = 1; i < this.registersFields.length; i++){
@@ -525,6 +526,11 @@ public class GraphicSwing implements ActionListener{
 				this.lcmOrderTotal.setText(String.valueOf(this.ram.getTotalLogarithmicCost()));
 			    break;
 			case "checkSyntax":
+				//check if program has been changed and reload if necessary
+				if(!this.lastProgram.equals(this.programArea.getText())){
+					this.reloadProgram();
+				}
+				this.lastProgram = this.programArea.getText();
 				boolean checkedSyntax = this.ram.checkSyntax();
 				if(checkedSyntax){
 					this.writeLogText("The syntax is correct");
@@ -532,6 +538,7 @@ public class GraphicSwing implements ActionListener{
 				}
 				else{
 					this.writeLogText(this.ram.getSyntaxErrors());
+					this.output.setText("The syntax is not correct, see log for details");
 				}
 				break;
 			case "exit":
