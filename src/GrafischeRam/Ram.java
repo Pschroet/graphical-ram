@@ -183,12 +183,12 @@ public class Ram{
 				String rightElement = currentContent[1];
 				//if it is a constant
 				if(rightElement.matches("(\\-)?[0-9]+")){
-					//go to next line
-					this.currentLine++;
 					int number = Integer.parseInt(rightElement);
 					this.Registers[leftElement] = number;
 					this.lcmOrder += this.calculateLogarithmicCost(number);
 					this.lcmOrderTotal += this.lcmOrder;
+					//go to next line
+					this.currentLine++;
 					return "Set Register " + leftElement + " to " + Integer.parseInt(rightElement) + ".";
 				}
 				//if the right element is just a register
@@ -214,9 +214,9 @@ public class Ram{
 					int rightLeftHalf = getElement(rightHalfs[0]);
 					//check what the right part of the right element is
 					int rightRightHalf = getElement(rightHalfs[1]);
+					this.Registers[leftElement] = rightLeftHalf + rightRightHalf;
 					//go to next line
 					this.currentLine++;
-					this.Registers[leftElement] = rightLeftHalf + rightRightHalf;
 					return "Set Register " + leftElement + " to " + (rightLeftHalf + rightRightHalf) + ".";
 				}
 				if(currentContent[1].matches(".*\\*.*")){
@@ -227,10 +227,10 @@ public class Ram{
 					int rightLeftHalf = getElement(rightHalfs[0]);
 					//check what the right part of the right element is
 					int rightRightHalf = getElement(rightHalfs[1]);
-					//go to next line
-					this.currentLine++;
 					this.Registers[leftElement] = rightLeftHalf * rightRightHalf;
 					this.lcmOrderTotal += this.lcmOrder;
+					//go to next line
+					this.currentLine++;
 					return "Set Register " + leftElement + " to " + (rightLeftHalf * rightRightHalf) + ".";
 					
 				}
@@ -242,10 +242,10 @@ public class Ram{
 					int rightLeftHalf = getElement(rightHalfs[0]);
 					//check what the right part of the right element is
 					int rightRightHalf = getElement(rightHalfs[1]);
-					//go to next line
-					this.currentLine++;
 					this.Registers[leftElement] = rightLeftHalf / rightRightHalf;
 					this.lcmOrderTotal += this.lcmOrder;
+					//go to next line
+					this.currentLine++;
 					return "Set Register " + leftElement + " to " + (rightLeftHalf / rightRightHalf) + ".";
 				}
 				if(currentContent[1].matches(".*\\-.*")){
@@ -276,16 +276,16 @@ public class Ram{
 							rightRightHalf = getElement(rightHalfs[1]);
 						}
 					}
-					//go to next line
-					this.currentLine++;
 					this.Registers[leftElement] = rightLeftHalf - rightRightHalf;
 					this.lcmOrderTotal += this.lcmOrder;
+					//go to next line
+					this.currentLine++;
 					return "Set Register " + leftElement + " to " + (rightLeftHalf - rightRightHalf) + ".";
 				}
 			}
 		}
 		catch(ArrayIndexOutOfBoundsException e){
-			return "Register(s) missing in line " + this.currentLine + 1;
+			return "Register(s) missing in line " + (this.currentLine + 1);
 		}
 		if(computingLine.matches("GGZ(R[0-9]+|[(]R[0-9]+[)]|[0-9]+),[L][0-9]+")){
 			this.ucmOrder++;
