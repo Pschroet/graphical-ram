@@ -51,12 +51,18 @@ public class Ram{
 	
 	//reads the contents of the given registers and transforms them into integer
 	private void fillRegisters(String registers){
-		//read the contents of the registers...
-		String[] temp = registers.split(";");
-		this.Registers = new int[temp.length];
-		//and make each one an integer
-		for(int i = 0; i < temp.length; i++){
-			this.Registers[i] = Integer.parseInt(temp[i].trim());
+		if(!registers.equals("")){
+			//read the contents of the registers...
+			String[] temp = registers.split(";");
+			this.Registers = new int[temp.length];
+			System.out.println(temp.length);
+			//and make each one an integer
+			for(int i = 0; i < temp.length; i++){
+				this.Registers[i] = Integer.parseInt(temp[i].trim());
+			}
+		}
+		else{
+			this.Registers = new int[0];
 		}
 	}
 	
@@ -145,136 +151,141 @@ public class Ram{
 			return "Going one line further.";
 		}
 		//System.out.println("computingLine: " + computingLine);
-		if(computingLine.matches("((R[0-9]+)|([(]R[0-9]+[)])):=((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|[0-9]+)((\\+|\\-|\\*|\\/)((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|([0-9]+)))?")){
-			this.ucmOrder++;
-			this.ucmOrderTotal++;
-			String[] currentContent = computingLine.split(":=");
-			//check the left part
-			int leftElement = 0;
-			if(currentContent[0].trim().matches("(\\-)?[0-9]+")){
-				return "Syntax not allowed: Left element of an assignment may not be a constant.";
-			}
-			else{
-				if(currentContent[0].matches("^R\\d+")){
-					leftElement = Integer.parseInt(currentContent[0].replace("R", "").replace(" ", ""));
-					this.ucmMemory++;
-					this.ucmMemoryTotal++;
-					this.lcmOrder += this.calculateLogarithmicCost(leftElement);
+		try{
+			if(computingLine.matches("((R[0-9]+)|([(]R[0-9]+[)])):=((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|[0-9]+)((\\+|\\-|\\*|\\/)((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|([0-9]+)))?")){
+				this.ucmOrder++;
+				this.ucmOrderTotal++;
+				String[] currentContent = computingLine.split(":=");
+				//check the left part
+				int leftElement = 0;
+				if(currentContent[0].trim().matches("(\\-)?[0-9]+")){
+					return "Syntax not allowed: Left element of an assignment may not be a constant.";
 				}
 				else{
-					if(currentContent[0].matches("^[(]R\\d+[)]")){
-						leftElement = this.Registers[Integer.parseInt(currentContent[0].replace("(", "").replace(")", "").replace("R", "").replace(" ", ""))];
+					if(currentContent[0].matches("^R\\d+")){
+						leftElement = Integer.parseInt(currentContent[0].replace("R", "").replace(" ", ""));
 						this.ucmMemory++;
 						this.ucmMemoryTotal++;
 						this.lcmOrder += this.calculateLogarithmicCost(leftElement);
-						this.lcmOrder += this.calculateLogarithmicCost(this.Registers[leftElement]);
 					}
+					else{
+						if(currentContent[0].matches("^[(]R\\d+[)]")){
+							leftElement = this.Registers[Integer.parseInt(currentContent[0].replace("(", "").replace(")", "").replace("R", "").replace(" ", ""))];
+							this.ucmMemory++;
+							this.ucmMemoryTotal++;
+							this.lcmOrder += this.calculateLogarithmicCost(leftElement);
+							this.lcmOrder += this.calculateLogarithmicCost(this.Registers[leftElement]);
+						}
+						
+					}
+				}
+				//check the right part
+				String rightElement = currentContent[1];
+				//if it is a constant
+				if(rightElement.matches("(\\-)?[0-9]+")){
+					//go to next line
+					this.currentLine++;
+					int number = Integer.parseInt(rightElement);
+					this.Registers[leftElement] = number;
+					this.lcmOrder += this.calculateLogarithmicCost(number);
+					this.lcmOrderTotal += this.lcmOrder;
+					return "Set Register " + leftElement + " to " + Integer.parseInt(rightElement) + ".";
+				}
+				//if the right element is just a register
+				if(rightElement.matches("R[0-9]+")){
+					int result = this.getElement(rightElement);
+					this.Registers[leftElement] = result;
+					//go to next line
+					this.currentLine++;
+					return "Set Register " + leftElement + " to " + result + ".";
+				}
+				//if the right element is an indirect register
+				if(rightElement.matches("[(]R[0-9]+[)]")){
+					int result = this.getElement(rightElement);
+					this.Registers[leftElement] = result;
+					//go to next line
+					this.currentLine++;
+					return "Set Register " + leftElement + " to " + result + ".";
+				}
+				//TODO: define more
+				if(currentContent[1].matches(".*\\+.*")){
+					String[] rightHalfs = currentContent[1].split("\\+");
+					//check what the left part of the right element is
+					int rightLeftHalf = getElement(rightHalfs[0]);
+					//check what the right part of the right element is
+					int rightRightHalf = getElement(rightHalfs[1]);
+					//go to next line
+					this.currentLine++;
+					this.Registers[leftElement] = rightLeftHalf + rightRightHalf;
+					return "Set Register " + leftElement + " to " + (rightLeftHalf + rightRightHalf) + ".";
+				}
+				if(currentContent[1].matches(".*\\*.*")){
+					String[] rightHalfs = currentContent[1].split("\\*");
+					rightHalfs[0] = rightHalfs[0];
+					rightHalfs[1] = rightHalfs[1];
+					//check what the left part of the right element is
+					int rightLeftHalf = getElement(rightHalfs[0]);
+					//check what the right part of the right element is
+					int rightRightHalf = getElement(rightHalfs[1]);
+					//go to next line
+					this.currentLine++;
+					this.Registers[leftElement] = rightLeftHalf * rightRightHalf;
+					this.lcmOrderTotal += this.lcmOrder;
+					return "Set Register " + leftElement + " to " + (rightLeftHalf * rightRightHalf) + ".";
 					
 				}
-			}
-			//check the right part
-			String rightElement = currentContent[1];
-			//if it is a constant
-			if(rightElement.matches("(\\-)?[0-9]+")){
-				//go to next line
-				this.currentLine++;
-				int number = Integer.parseInt(rightElement);
-				this.Registers[leftElement] = number;
-				this.lcmOrder += this.calculateLogarithmicCost(number);
-				this.lcmOrderTotal += this.lcmOrder;
-				return "Set Register " + leftElement + " to " + Integer.parseInt(rightElement) + ".";
-			}
-			//if the right element is just a register
-			if(rightElement.matches("R[0-9]+")){
-				int result = this.getElement(rightElement);
-				this.Registers[leftElement] = result;
-				//go to next line
-				this.currentLine++;
-				return "Set Register " + leftElement + " to " + result + ".";
-			}
-			//if the right element is an indirect register
-			if(rightElement.matches("[(]R[0-9]+[)]")){
-				int result = this.getElement(rightElement);
-				this.Registers[leftElement] = result;
-				//go to next line
-				this.currentLine++;
-				return "Set Register " + leftElement + " to " + result + ".";
-			}
-			//TODO: define more
-			if(currentContent[1].matches(".*\\+.*")){
-				String[] rightHalfs = currentContent[1].split("\\+");
-				//check what the left part of the right element is
-				int rightLeftHalf = getElement(rightHalfs[0]);
-				//check what the right part of the right element is
-				int rightRightHalf = getElement(rightHalfs[1]);
-				//go to next line
-				this.currentLine++;
-				this.Registers[leftElement] = rightLeftHalf + rightRightHalf;
-				return "Set Register " + leftElement + " to " + (rightLeftHalf + rightRightHalf) + ".";
-			}
-			if(currentContent[1].matches(".*\\*.*")){
-				String[] rightHalfs = currentContent[1].split("\\*");
-				rightHalfs[0] = rightHalfs[0];
-				rightHalfs[1] = rightHalfs[1];
-				//check what the left part of the right element is
-				int rightLeftHalf = getElement(rightHalfs[0]);
-				//check what the right part of the right element is
-				int rightRightHalf = getElement(rightHalfs[1]);
-				//go to next line
-				this.currentLine++;
-				this.Registers[leftElement] = rightLeftHalf * rightRightHalf;
-				this.lcmOrderTotal += this.lcmOrder;
-				return "Set Register " + leftElement + " to " + (rightLeftHalf * rightRightHalf) + ".";
-				
-			}
-			if(currentContent[1].matches(".*/.*")){
-				String[] rightHalfs = currentContent[1].split("/");
-				rightHalfs[0] = rightHalfs[0];
-				rightHalfs[1] = rightHalfs[1];
-				//check what the left part of the right element is
-				int rightLeftHalf = getElement(rightHalfs[0]);
-				//check what the right part of the right element is
-				int rightRightHalf = getElement(rightHalfs[1]);
-				//go to next line
-				this.currentLine++;
-				this.Registers[leftElement] = rightLeftHalf / rightRightHalf;
-				this.lcmOrderTotal += this.lcmOrder;
-				return "Set Register " + leftElement + " to " + (rightLeftHalf / rightRightHalf) + ".";
-			}
-			if(currentContent[1].matches(".*\\-.*")){
-				//splits the assignment using the minuses, i. e. that if there are negative values their minuses will be erased; this case is handled, see below
-				String[] rightHalfs = currentContent[1].split("\\-");
-				//check what the left and right parts of the right element are
-				int rightLeftHalf;
-				int rightRightHalf;
-				//if the first element is a white space and nothing else then there was a minus before the number
-				if(rightHalfs[0].matches("")){
-					//that's why the next element will be used
-					rightLeftHalf = getElement("-" + rightHalfs[1]);
-					if(rightHalfs[2].matches("")){
-						rightRightHalf = getElement("-" + rightHalfs[3]);
-					}
-					else{
-						rightRightHalf = getElement(rightHalfs[2]);
-					}
+				if(currentContent[1].matches(".*/.*")){
+					String[] rightHalfs = currentContent[1].split("/");
+					rightHalfs[0] = rightHalfs[0];
+					rightHalfs[1] = rightHalfs[1];
+					//check what the left part of the right element is
+					int rightLeftHalf = getElement(rightHalfs[0]);
+					//check what the right part of the right element is
+					int rightRightHalf = getElement(rightHalfs[1]);
+					//go to next line
+					this.currentLine++;
+					this.Registers[leftElement] = rightLeftHalf / rightRightHalf;
+					this.lcmOrderTotal += this.lcmOrder;
+					return "Set Register " + leftElement + " to " + (rightLeftHalf / rightRightHalf) + ".";
 				}
-				//if the first element is no white space then the number will be used,
-				else{
-					rightLeftHalf = getElement(rightHalfs[0]);
-					//but the second could be negative, so it is checked
-					if(rightHalfs[1].matches("")){
-						rightRightHalf = getElement("-" + rightHalfs[2]);
+				if(currentContent[1].matches(".*\\-.*")){
+					//splits the assignment using the minuses, i. e. that if there are negative values their minuses will be erased; this case is handled, see below
+					String[] rightHalfs = currentContent[1].split("\\-");
+					//check what the left and right parts of the right element are
+					int rightLeftHalf;
+					int rightRightHalf;
+					//if the first element is a white space and nothing else then there was a minus before the number
+					if(rightHalfs[0].matches("")){
+						//that's why the next element will be used
+						rightLeftHalf = getElement("-" + rightHalfs[1]);
+						if(rightHalfs[2].matches("")){
+							rightRightHalf = getElement("-" + rightHalfs[3]);
+						}
+						else{
+							rightRightHalf = getElement(rightHalfs[2]);
+						}
 					}
+					//if the first element is no white space then the number will be used,
 					else{
-						rightRightHalf = getElement(rightHalfs[1]);
+						rightLeftHalf = getElement(rightHalfs[0]);
+						//but the second could be negative, so it is checked
+						if(rightHalfs[1].matches("")){
+							rightRightHalf = getElement("-" + rightHalfs[2]);
+						}
+						else{
+							rightRightHalf = getElement(rightHalfs[1]);
+						}
 					}
+					//go to next line
+					this.currentLine++;
+					this.Registers[leftElement] = rightLeftHalf - rightRightHalf;
+					this.lcmOrderTotal += this.lcmOrder;
+					return "Set Register " + leftElement + " to " + (rightLeftHalf - rightRightHalf) + ".";
 				}
-				//go to next line
-				this.currentLine++;
-				this.Registers[leftElement] = rightLeftHalf - rightRightHalf;
-				this.lcmOrderTotal += this.lcmOrder;
-				return "Set Register " + leftElement + " to " + (rightLeftHalf - rightRightHalf) + ".";
 			}
+		}
+		catch(ArrayIndexOutOfBoundsException e){
+			return "Register(s) missing in line " + this.currentLine + 1;
 		}
 		if(computingLine.matches("GGZ(R[0-9]+|[(]R[0-9]+[)]|[0-9]+),[L][0-9]+")){
 			this.ucmOrder++;
