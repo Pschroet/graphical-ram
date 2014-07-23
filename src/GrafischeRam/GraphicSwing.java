@@ -453,8 +453,10 @@ public class GraphicSwing implements ActionListener{
 	}
 	
 	private void reloadProgram(){
-		//TODO fix error, when there are now registers
-		String newRegisters = this.registersFields[0].getText();
+		String newRegisters = "";
+		if(this.registersFields.length > 0){
+			newRegisters = this.registersFields[0].getText();
+		}
 		try{
 			for(int i = 1; i < this.registersFields.length; i++){
 				newRegisters = newRegisters.concat(";" + this.registersFields[i].getText());
