@@ -481,7 +481,12 @@ public class GraphicSwing implements ActionListener{
 	}
 	
 	private void writeLogText(String text){
-		this.outputLog.setText(this.outputLog.getText() + System.lineSeparator() + text);
+		if(this.outputLog.getText().equals("")){
+			this.outputLog.setText(text);
+		}
+		else{
+			this.outputLog.setText(this.outputLog.getText() + System.lineSeparator() + text);
+		}
 	}
 	
 	private void resetProgram(){
