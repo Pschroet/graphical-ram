@@ -12,6 +12,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -34,6 +36,8 @@ public class GraphicSwing implements ActionListener{
 	private String lastSavedFile;
 	private JMenuItem loadProgram;
 	private String lastLoadedFile;			//the last file that has been loaded, this variable is just used to log it
+	private JMenu lastProgramsMenu;
+	private LinkedList<String> lastPrograms;
 	private JMenuItem exit;
 	private JMenuItem resetProgram;
 	private JMenuItem checkSyntax;
@@ -92,6 +96,9 @@ public class GraphicSwing implements ActionListener{
 		this.saveProgram.setActionCommand("save");
 		this.saveProgram.addActionListener(this);
 		fileMenu.add(saveProgram);
+		this.lastProgramsMenu = new JMenu("Last Programs");
+		fileMenu.add(this.lastProgramsMenu);
+		this.lastPrograms = new LinkedList<String>();
 		this.exit = new JMenuItem("Exit");
 		this.exit.setActionCommand("exit");
 		this.exit.addActionListener(this);
@@ -496,6 +503,22 @@ public class GraphicSwing implements ActionListener{
 		this.programArea.setText("");
 	}
 	
+	//adds the program to the Last Loaded Program submenu
+	//the maximum amount of programs is 10
+	private void addLoadedProgram(String program){
+		if(this.lastPrograms.size() == 10){
+			this.lastPrograms.removeLast();
+		}
+		this.lastPrograms.addFirst(program);
+		this.lastProgramsMenu.removeAll();
+		Iterator<String> iter = this.lastPrograms.iterator();
+		while(iter.hasNext()){
+			JMenuItem item = new JMenuItem(iter.next());
+			item.setActionCommand("loadLastProgram");
+			this.lastProgramsMenu.add(item);
+		}
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String text;
@@ -511,6 +534,7 @@ public class GraphicSwing implements ActionListener{
 				String[] newProgramLines = chooseProgramFile();
 				if(newProgramLines != null){
 					loadNewProgram(newProgramLines, true);
+					addLoadedProgram(this.lastLoadedFile);
 					showCurrentLine();
 					text = "Loaded file " + this.lastLoadedFile;
 					this.output.setText(text);
@@ -547,6 +571,8 @@ public class GraphicSwing implements ActionListener{
 					this.writeLogText(this.ram.getSyntaxErrors());
 					this.output.setText("The syntax is not correct, see log for details");
 				}
+				break;
+			case "loadLastProgram":
 				break;
 			case "exit":
 				System.exit(0);
