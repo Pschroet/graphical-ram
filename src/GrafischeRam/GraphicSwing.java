@@ -287,10 +287,7 @@ public class GraphicSwing implements ActionListener{
 		this.output.setText(output);
 	}
 	
-	//opens a file chooser, read the content of the file and return the lines in a String array
-	private String[] chooseProgramFile(){
-		this.fc.showOpenDialog(this.loadProgram);
-		File file = fc.getSelectedFile();
+	private String[] readProgram(File file){
 		FileReader fileToRead = null;
 		String textContainer = null;
 		if(file != null){
@@ -320,6 +317,14 @@ public class GraphicSwing implements ActionListener{
 			return textContainer.split("%");
 		}
 		return null;
+		
+	}
+	
+	//opens a file chooser, read the content of the file and return the lines in a String array
+	private String[] chooseProgramFile(){
+		this.fc.showOpenDialog(this.loadProgram);
+		File file = fc.getSelectedFile();
+		return this.readProgram(file);
 	}
 	
 	//load a new program given (usually by chooseProgramFile), gives it to the Ram and puts the text into the program area
@@ -575,7 +580,7 @@ public class GraphicSwing implements ActionListener{
 				break;
 			case "loadLastProgram":
 				JMenuItem item = (JMenuItem) e.getSource();
-				System.out.println(item.getText());
+				loadNewProgram(this.readProgram(new File(item.getText())), true);
 				break;
 			case "exit":
 				System.exit(0);
