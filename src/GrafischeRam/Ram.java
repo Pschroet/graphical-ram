@@ -55,7 +55,6 @@ public class Ram{
 			//read the contents of the registers...
 			String[] temp = registers.split(";");
 			this.Registers = new int[temp.length];
-			System.out.println(temp.length);
 			//and make each one an integer
 			for(int i = 0; i < temp.length; i++){
 				this.Registers[i] = Integer.parseInt(temp[i].trim());
