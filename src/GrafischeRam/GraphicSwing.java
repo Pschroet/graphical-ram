@@ -515,6 +515,7 @@ public class GraphicSwing implements ActionListener{
 		while(iter.hasNext()){
 			JMenuItem item = new JMenuItem(iter.next());
 			item.setActionCommand("loadLastProgram");
+			item.addActionListener(this);
 			this.lastProgramsMenu.add(item);
 		}
 	}
@@ -573,6 +574,8 @@ public class GraphicSwing implements ActionListener{
 				}
 				break;
 			case "loadLastProgram":
+				JMenuItem item = (JMenuItem) e.getSource();
+				System.out.println(item.getText());
 				break;
 			case "exit":
 				System.exit(0);
