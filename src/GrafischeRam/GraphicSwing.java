@@ -316,7 +316,7 @@ public class GraphicSwing implements ActionListener{
 			catch(IOException e3){
 				System.out.println("Open error " + e3);
 			}
-			this.lastLoadedFile = file.getName();
+			this.lastLoadedFile = file.getAbsolutePath();
 			return textContainer.split("%");
 		}
 		return null;
