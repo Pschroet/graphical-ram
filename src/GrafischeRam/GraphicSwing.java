@@ -75,7 +75,6 @@ public class GraphicSwing implements ActionListener{
 	private JButton logButton;				//button to open the log window
 	private String lastProgram;
 	private int[] lastRegisters;
-	private String savedProgram;
 	final JFileChooser fc = new JFileChooser();
 	
 	public GraphicSwing(Ram ram){
@@ -228,7 +227,7 @@ public class GraphicSwing implements ActionListener{
 		//show the  finished window
 		this.frame.setVisible(true);
 		this.frame.validate();
-		this.savedProgram = this.ram.program;
+		this.lastProgram = this.ram.program;
 		if(!this.ram.program.equals("")){
 			this.programArea.setText(this.ram.program);
 		}
@@ -380,7 +379,7 @@ public class GraphicSwing implements ActionListener{
 		this.ram.load(newProgram.replaceAll("(?<!\r)\n", System.getProperty("line.separator")), program[0]);
 		//put the program in the program area
 		this.programArea.setText(newProgram);
-		if(remember) this.savedProgram = newProgram;
+		if(remember) this.lastProgram = newProgram;
 		//save the registers for restarting
 		this.lastRegisters = new int[registers.length];
 		for(int i = 0; i < registers.length; i++){
@@ -455,7 +454,7 @@ public class GraphicSwing implements ActionListener{
 		newRegisters = newRegisters.concat(String.valueOf(this.lastRegisters[this.lastRegisters.length-1]));
 		//combine the register string and the program to an array and give it to the ram by passing it to loadNewProgram
 		//String[] newProgram = this.programArea.getText().split(System.getProperty("line.separator"));
-		String[] newProgram = this.savedProgram.split(System.getProperty("line.separator"));
+		String[] newProgram = this.lastProgram.split(System.getProperty("line.separator"));
 		String[] inputToLoad = new String[newProgram.length + 1];
 		inputToLoad[0] = newRegisters;
 		for(int i = 0; i < newProgram.length; i++){
