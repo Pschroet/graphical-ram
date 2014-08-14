@@ -601,6 +601,11 @@ public class GraphicSwing implements ActionListener{
 			case "loadLastProgram":
 				JMenuItem item = (JMenuItem) e.getSource();
 				loadNewProgram(this.readProgram(new File(item.getText())), true);
+				showCurrentLine();
+				text = "Loaded file " + this.lastLoadedFile;
+				this.output.setText(text);
+				this.writeLogText(text);
+				this.restartButton.setEnabled(true);
 				break;
 			case "exit":
 				System.exit(0);
