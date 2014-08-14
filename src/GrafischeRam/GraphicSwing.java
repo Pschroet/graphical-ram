@@ -128,9 +128,9 @@ public class GraphicSwing implements ActionListener{
 		this.aboutWindow.setLayout(new GridLayout());
 		this.aboutWindow.setVisible(false);
 		this.aboutWindow.setResizable(false);
-		this.aboutWindow.setSize(new Dimension(600, 400));
+		this.aboutWindow.setSize(new Dimension(600, 450));
 		this.aboutText = new JTextArea("Graphical Ram v" + this.version + "\n\nLICENSE:\n\nThe MIT License (MIT)\n\n" + "Copyright (c) 2014 Philipp Schröter, Daniel Seidenstücker\n\n" + "Permission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\n" + "The above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\n" + "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.");
-		this.aboutText.setSize(new Dimension(600, 400));
+		this.aboutText.setSize(new Dimension(600, 450));
 		this.aboutText.setEditable(false);
 		this.aboutWindow.add(this.aboutText);
 		infoMenu.add(this.about);
