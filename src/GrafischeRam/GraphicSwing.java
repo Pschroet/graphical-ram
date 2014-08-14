@@ -617,6 +617,9 @@ public class GraphicSwing implements ActionListener{
 				this.restartProgram();
 				this.updateRegister();
 				showCurrentLine();
+				text = "Restarted program from file " + this.lastLoadedFile;
+				this.output.setText(text);
+				this.writeLogText(text);
 				break;
 			case "computeLine":
 				this.computeLineButton.setEnabled(false);
