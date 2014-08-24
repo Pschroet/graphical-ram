@@ -246,8 +246,8 @@ public class GraphicSwing implements ActionListener{
 		this.frame.add(this.progressPanel, BorderLayout.SOUTH);
 		//create a scroll pane so content not fitting in the window will be shown
 		//show the  finished window
-		this.frame.setVisible(true);
 		this.frame.validate();
+		this.frame.setVisible(true);
 		this.lastProgram = this.ram.program;
 		if(!this.ram.program.equals("")){
 			this.programArea.setText(this.ram.program);
@@ -547,124 +547,138 @@ public class GraphicSwing implements ActionListener{
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		String text;
-		int[] unifiedCost;
-		int[] unifiedTotalCost;
-		switch(e.getActionCommand()){
-			case "reset":
-				this.resetProgram();
-				this.updateRegister();
-				showCurrentLine();
-				break;
-			case "load":
-				String[] newProgramLines = chooseProgramFile();
-				if(newProgramLines != null){
-					loadNewProgram(newProgramLines, true);
-					addLoadedProgram(this.lastLoadedFile);
+		try{
+			String text;
+			int[] unifiedCost;
+			int[] unifiedTotalCost;
+			switch(e.getActionCommand()){
+				case "reset":
+					this.resetProgram();
+					this.updateRegister();
+					showCurrentLine();
+					break;
+				case "load":
+					String[] newProgramLines = chooseProgramFile();
+					if(newProgramLines != null){
+						loadNewProgram(newProgramLines, true);
+						addLoadedProgram(this.lastLoadedFile);
+						showCurrentLine();
+						text = "Loaded file " + this.lastLoadedFile;
+						this.output.setText(text);
+						this.writeLogText(text);
+						this.restartButton.setEnabled(true);
+					}
+					break;
+				case "save":
+					saveProgram();
+					text = "Saved file " + this.lastSavedFile;
+					this.output.setText(text);
+					this.writeLogText(text);
+					unifiedCost = this.ram.getCurrentUnifiedCost();
+					this.ucmOrder.setText(String.valueOf(unifiedCost[0]));
+					this.ucmMemory.setText(String.valueOf(unifiedCost[1]));
+					this.lcmOrder.setText(String.valueOf(this.ram.getCurrentLogarithmicCost()));
+					unifiedTotalCost = this.ram.getTotalUnifiedCost();
+					this.ucmOrderTotal.setText(String.valueOf(unifiedTotalCost[0]));
+					this.ucmMemoryTotal.setText(String.valueOf(unifiedTotalCost[1]));
+					this.lcmOrderTotal.setText(String.valueOf(this.ram.getTotalLogarithmicCost()));
+				    break;
+				case "checkSyntax":
+					//check if program has been changed and reload if necessary
+					if(!this.lastProgram.equals(this.programArea.getText())){
+						this.reloadProgram();
+					}
+					this.lastProgram = this.programArea.getText();
+					boolean checkedSyntax = this.ram.checkSyntax();
+					if(checkedSyntax){
+						this.writeLogText("The syntax is correct");
+						this.output.setText("The syntax is correct");
+					}
+					else{
+						this.writeLogText(this.ram.getSyntaxErrors());
+						this.output.setText("The syntax is not correct, see log for details");
+					}
+					break;
+				case "loadLastProgram":
+					JMenuItem item = (JMenuItem) e.getSource();
+					loadNewProgram(this.readProgram(new File(item.getText())), true);
 					showCurrentLine();
 					text = "Loaded file " + this.lastLoadedFile;
 					this.output.setText(text);
 					this.writeLogText(text);
 					this.restartButton.setEnabled(true);
-				}
-				break;
-			case "save":
-				saveProgram();
-				text = "Saved file " + this.lastSavedFile;
-				this.output.setText(text);
-				this.writeLogText(text);
-				unifiedCost = this.ram.getCurrentUnifiedCost();
-				this.ucmOrder.setText(String.valueOf(unifiedCost[0]));
-				this.ucmMemory.setText(String.valueOf(unifiedCost[1]));
-				this.lcmOrder.setText(String.valueOf(this.ram.getCurrentLogarithmicCost()));
-				unifiedTotalCost = this.ram.getTotalUnifiedCost();
-				this.ucmOrderTotal.setText(String.valueOf(unifiedTotalCost[0]));
-				this.ucmMemoryTotal.setText(String.valueOf(unifiedTotalCost[1]));
-				this.lcmOrderTotal.setText(String.valueOf(this.ram.getTotalLogarithmicCost()));
-			    break;
-			case "checkSyntax":
-				//check if program has been changed and reload if necessary
-				if(!this.lastProgram.equals(this.programArea.getText())){
-					this.reloadProgram();
-				}
-				this.lastProgram = this.programArea.getText();
-				boolean checkedSyntax = this.ram.checkSyntax();
-				if(checkedSyntax){
-					this.writeLogText("The syntax is correct");
-					this.output.setText("The syntax is correct");
-				}
-				else{
-					this.writeLogText(this.ram.getSyntaxErrors());
-					this.output.setText("The syntax is not correct, see log for details");
-				}
-				break;
-			case "loadLastProgram":
-				JMenuItem item = (JMenuItem) e.getSource();
-				loadNewProgram(this.readProgram(new File(item.getText())), true);
-				showCurrentLine();
-				text = "Loaded file " + this.lastLoadedFile;
-				this.output.setText(text);
-				this.writeLogText(text);
-				this.restartButton.setEnabled(true);
-				break;
-			case "exit":
-				System.exit(0);
-				break;
-			case "newRegister":
-				this.addRegister("0");
-				break;
-			case "restart":
-				this.restartProgram();
-				this.updateRegister();
-				showCurrentLine();
-				text = "Restarted program from file " + this.lastLoadedFile;
-				this.output.setText(text);
-				this.writeLogText(text);
-				break;
-			case "computeLine":
-				this.computeLineButton.setEnabled(false);
-				checkRegisters();
-				try{
-					//check if program has been changed and reload if necessary
-					if(!this.lastProgram.equals(this.programArea.getText())){
-						this.reloadProgram();
-					}
-					String output = this.ram.computeLine();
-					this.writeLogText(output);
-					this.output.setText(output);
+					break;
+				case "exit":
+					System.exit(0);
+					break;
+				case "newRegister":
+					this.addRegister("0");
+					break;
+				case "restart":
+					this.restartProgram();
 					this.updateRegister();
-					this.lastProgram = this.programArea.getText();
 					showCurrentLine();
-					//get the unified costs of the current line and display them
-					unifiedCost = this.ram.getCurrentUnifiedCost();
-					this.ucmOrder.setText(String.valueOf(unifiedCost[0]));
-					this.ucmMemory.setText(String.valueOf(unifiedCost[1]));
-					this.lcmOrder.setText(String.valueOf(this.ram.getCurrentLogarithmicCost()));
-					//get the total unified costs and display them
-					unifiedTotalCost = this.ram.getTotalUnifiedCost();
-					this.ucmOrderTotal.setText(String.valueOf(unifiedTotalCost[0]));
-					this.ucmMemoryTotal.setText(String.valueOf(unifiedTotalCost[1]));
-					this.lcmOrderTotal.setText(String.valueOf(this.ram.getTotalLogarithmicCost()));
-				}
-				catch(ArrayIndexOutOfBoundsException exception){
-					this.output.setText("At least one register in line " + (this.ram.currentLine + 1)  + " does not exist");
-				}
-				this.computeLineButton.setEnabled(true);
-				break;
-			case "computeProgram":
-				this.computeProgramButton.setEnabled(false);
-				this.computeLineButton.doClick();
-				while(!this.output.getText().matches("No possiblity to compute further.*") && !this.output.getText().matches("End of program reached.*") && ! this.output.getText().matches("Syntax not allowed.*")){
+					text = "Restarted program from file " + this.lastLoadedFile;
+					this.output.setText(text);
+					this.writeLogText(text);
+					break;
+				case "computeLine":
+					this.computeLineButton.setEnabled(false);
+					checkRegisters();
+					try{
+						//check if program has been changed and reload if necessary
+						if(!this.lastProgram.equals(this.programArea.getText())){
+							this.reloadProgram();
+						}
+						String output = this.ram.computeLine();
+						this.writeLogText(output);
+						this.output.setText(output);
+						this.updateRegister();
+						this.lastProgram = this.programArea.getText();
+						showCurrentLine();
+						//get the unified costs of the current line and display them
+						unifiedCost = this.ram.getCurrentUnifiedCost();
+						this.ucmOrder.setText(String.valueOf(unifiedCost[0]));
+						this.ucmMemory.setText(String.valueOf(unifiedCost[1]));
+						this.lcmOrder.setText(String.valueOf(this.ram.getCurrentLogarithmicCost()));
+						//get the total unified costs and display them
+						unifiedTotalCost = this.ram.getTotalUnifiedCost();
+						this.ucmOrderTotal.setText(String.valueOf(unifiedTotalCost[0]));
+						this.ucmMemoryTotal.setText(String.valueOf(unifiedTotalCost[1]));
+						this.lcmOrderTotal.setText(String.valueOf(this.ram.getTotalLogarithmicCost()));
+					}
+					catch(ArrayIndexOutOfBoundsException exception){
+						this.output.setText("At least one register in line " + (this.ram.currentLine + 1)  + " does not exist");
+					}
+					this.computeLineButton.setEnabled(true);
+					break;
+				case "computeProgram":
+					this.computeProgramButton.setEnabled(false);
 					this.computeLineButton.doClick();
-				}
-				this.computeProgramButton.setEnabled(true);
-				break;
-			case "openLog":
-				this.outputLogFrame.setVisible(true);
-				break;
-			case "about":
-				this.aboutWindow.setVisible(true);
-				break;
+					while(!this.output.getText().matches("No possiblity to compute further.*") && !this.output.getText().matches("End of program reached.*") && ! this.output.getText().matches("Syntax not allowed.*")){
+						this.computeLineButton.doClick();
+					}
+					this.computeProgramButton.setEnabled(true);
+					break;
+				case "openLog":
+					this.outputLogFrame.setVisible(true);
+					break;
+				case "about":
+					this.aboutWindow.setVisible(true);
+					break;
+			}
+		}catch(Exception except){
+			JFrame errorWindow = new JFrame("Error");
+			JTextArea exceptionText = new JTextArea("Application has thrown the following exception:" + System.getProperty("line.separator") + except.getLocalizedMessage());
+			exceptionText.setEnabled(false);
+			errorWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			JScrollPane errorScrollPane = new JScrollPane(exceptionText);
+			errorScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+			errorScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			errorWindow.setSize(new Dimension(500, 250));
+			errorWindow.add(errorScrollPane);
+			errorWindow.validate();
+			errorWindow.setVisible(true);
 		}
 	}
 }
