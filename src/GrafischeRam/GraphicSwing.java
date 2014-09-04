@@ -289,15 +289,19 @@ public class GraphicSwing implements ActionListener{
 		}
 		this.currentLine = new JPanel();
 		this.currentLine.setLayout(new BoxLayout(this.currentLine, BoxLayout.PAGE_AXIS));
-		for(int i = 0; i < this.ram.lines.length; i++){
-			JLabel label;
-			if(i != this.ram.currentLine){
-				label = new JLabel(" ");
+		if(this.ram.lines.length == 0){
+			this.currentLine.add(new JLabel("->"));
+		}else{
+			for(int i = 0; i < this.ram.lines.length; i++){
+				JLabel label;
+				if(i != this.ram.currentLine){
+					label = new JLabel(" ");
+				}
+				else{
+					label = new JLabel("->");
+				}
+				this.currentLine.add(label);
 			}
-			else{
-				label = new JLabel("->");
-			}
-			this.currentLine.add(label);
 		}
 		this.frame.add(this.currentLine, BorderLayout.WEST);
 		this.frame.revalidate();
@@ -555,14 +559,14 @@ public class GraphicSwing implements ActionListener{
 				case "reset":
 					this.resetProgram();
 					this.updateRegister();
-					showCurrentLine();
+					this.showCurrentLine();
 					break;
 				case "load":
 					String[] newProgramLines = chooseProgramFile();
 					if(newProgramLines != null){
 						loadNewProgram(newProgramLines, true);
 						addLoadedProgram(this.lastLoadedFile);
-						showCurrentLine();
+						this.showCurrentLine();
 						text = "Loaded file " + this.lastLoadedFile;
 						this.output.setText(text);
 						this.writeLogText(text);
@@ -602,7 +606,7 @@ public class GraphicSwing implements ActionListener{
 				case "loadLastProgram":
 					JMenuItem item = (JMenuItem) e.getSource();
 					loadNewProgram(this.readProgram(new File(item.getText())), true);
-					showCurrentLine();
+					this.showCurrentLine();
 					text = "Loaded file " + this.lastLoadedFile;
 					this.output.setText(text);
 					this.writeLogText(text);
@@ -617,7 +621,7 @@ public class GraphicSwing implements ActionListener{
 				case "restart":
 					this.restartProgram();
 					this.updateRegister();
-					showCurrentLine();
+					this.showCurrentLine();
 					text = "Restarted program from file " + this.lastLoadedFile;
 					this.output.setText(text);
 					this.writeLogText(text);
@@ -635,7 +639,7 @@ public class GraphicSwing implements ActionListener{
 						this.output.setText(output);
 						this.updateRegister();
 						this.lastProgram = this.programArea.getText();
-						showCurrentLine();
+						this.showCurrentLine();
 						//get the unified costs of the current line and display them
 						unifiedCost = this.ram.getCurrentUnifiedCost();
 						this.ucmOrder.setText(String.valueOf(unifiedCost[0]));
