@@ -149,6 +149,15 @@ public class Ram{
 			this.currentLine++;
 			return "Going one line further.";
 		}
+		//if the current line is just a comment
+		if(computingLine.matches("[#]+.*")){
+			this.currentLine++;
+			return "Comment. Going one line further.";
+		}
+		//if there is a comment later in the line, remove the comment from the parsed part
+		if(computingLine.matches(".+[#]+.*")){
+			computingLine = computingLine.split("[#]")[0];
+		}
 		//System.out.println("computingLine: " + computingLine);
 		try{
 			if(computingLine.matches("((R[0-9]+)|([(]R[0-9]+[)])):=((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|[0-9]+)((\\+|\\-|\\*|\\/)((R[0-9]+)|([(]R[0-9]+[)])|(\\-[0-9]+)|([0-9]+)))?")){
